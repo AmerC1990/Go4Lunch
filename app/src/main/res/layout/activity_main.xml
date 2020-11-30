@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
+    android:id="@+id/mainActivityDrawerLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,26 +14,43 @@
         android:orientation="vertical"
         android:weightSum="1">
 
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:minHeight="?android:attr/actionBarSize">
+
+            <TextView
+                android:id="@+id/toolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="        Go4Lunch"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="21sp" />
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                app:showAsAction="collapseActionView" />
+        </com.google.android.material.appbar.MaterialToolbar>
+
         <FrameLayout
-            android:id="@+id/fl_wrapper"
+            android:id="@+id/fragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="560dp"
             android:background="@android:color/white">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="?android:attr/actionBarSize"
-                android:background="@color/colorPrimary">
-            </com.google.android.material.appbar.MaterialToolbar>
-
         </FrameLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
+            android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:paddingBottom="0dp"
             android:background="@color/colorPrimary"
             app:itemBackground="@color/colorPrimary"
             app:itemIconTint="#000000"
@@ -43,7 +60,7 @@
 
 
     <LinearLayout
-        android:id="@+id/linear_layout_drawer"
+        android:id="@+id/navDrawerLayout"
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:background="#99E8C5"
@@ -57,9 +74,9 @@
             />
 
         <TextView
-            android:foreground="@drawable/rippleeffect"
+            android:foreground="@drawable/ripple_effect"
             android:background="#99E8C5"
-            android:id="@+id/txt_user_name"
+            android:id="@+id/usernameTextview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
@@ -70,9 +87,9 @@
             android:textAlignment="viewEnd"/>
 
         <TextView
-            android:foreground="@drawable/rippleeffect"
+            android:foreground="@drawable/ripple_effect"
             android:background="#99E8C5"
-            android:id="@+id/txt_user_email"
+            android:id="@+id/userEmailTextview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
@@ -85,9 +102,9 @@
 
 
         <TextView
-            android:foreground="@drawable/rippleeffect"
+            android:foreground="@drawable/ripple_effect"
             android:background="#99E8C5"
-            android:id="@+id/btn_your_lunch"
+            android:id="@+id/yourLunchButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
@@ -99,9 +116,9 @@
             android:drawableStart="@drawable/your_lunch"/>
 
         <TextView
-            android:foreground="@drawable/rippleeffect"
+            android:foreground="@drawable/ripple_effect"
             android:background="#99E8C5"
-            android:id="@+id/btn_settings"
+            android:id="@+id/settingsButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
@@ -113,9 +130,9 @@
             android:drawableStart="@drawable/settings"/>
 
         <TextView
-            android:foreground="@drawable/rippleeffect"
+            android:foreground="@drawable/ripple_effect"
             android:background="#99E8C5"
-            android:id="@+id/btn_logout"
+            android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
@@ -124,7 +141,7 @@
             android:text="Logout"
             android:textSize="20sp"
             android:textAlignment="viewEnd"
-            android:drawableStart="@drawable/logout"/>
+            android:drawableStart="@drawable/logout_icon"/>
 
     </LinearLayout>
 

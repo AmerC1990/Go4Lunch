@@ -9,16 +9,19 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.amercosovic.go4lunch.R
 import kotlinx.android.synthetic.main.activity_main.*
 
-class WorkmatesFragment : Fragment() {
+
+class RestaurantListFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val layoutInflater = inflater.inflate(R.layout.fragment_workmates, container, false)
+        val layoutInflater = inflater.inflate(R.layout.fragment_restaurantlist, container, false)
         val navDrawer: DrawerLayout = activity!!.mainActivityDrawerLayout
         navDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         return layoutInflater
     }
+
+
 }

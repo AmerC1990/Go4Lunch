@@ -5,41 +5,12 @@ xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-xmlns:app="http://schemas.android.com/apk/res-auto"
 tools:context=".fragments.MapFragment">
 
-<!-- TODO: Update blank fragment layout -->
 <RelativeLayout
-    android:id="@+id/relative_layout_map_fragment"
+    android:id="@+id/relativeLayoutMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/map_fragment_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="81dp"
-        android:layout_marginTop="11dp"
-        android:foregroundGravity="center"
-        android:gravity="center"
-        android:text="I'm Hungry"
-        android:textAlignment="center"
-        android:textColor="#000000"
-        android:textSize="20sp" />
-
-    <SearchView
-        android:id="@+id/map_fragment_search_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_gravity="end"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="4dp"
-        app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="always" />
 
     <fragment
         android:id="@+id/map"
@@ -55,7 +26,7 @@ tools:context=".fragments.MapFragment">
     </fragment>
 
     <TextView
-        android:id="@+id/denied_permission_message"
+        android:id="@+id/deniedPermissionMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
@@ -63,7 +34,7 @@ tools:context=".fragments.MapFragment">
         android:foregroundGravity="center"
         android:gravity="center"
         android:paddingTop="200dp"
-        android:text="Location permission is required to view your location, please enable it in settings"
+        android:text="@string/denied_permission_string"
         android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="30sp"

@@ -113,7 +113,7 @@
             android:text="Your Lunch"
             android:textSize="20sp"
             android:textAlignment="viewEnd"
-            android:drawableStart="@drawable/your_lunch"/>
+            android:drawableStart="@drawable/your_lunch_icon"/>
 
         <TextView
             android:foreground="@drawable/ripple_effect"
@@ -142,7 +142,6 @@
             android:textSize="20sp"
             android:textAlignment="viewEnd"
             android:drawableStart="@drawable/logout_icon"/>
-
     </LinearLayout>
 
 

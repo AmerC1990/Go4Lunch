@@ -14,7 +14,7 @@
         android:id="@+id/loginImageview"
         android:layout_width="327dp"
         android:layout_height="366dp"
-        android:src="@drawable/noodles3logo"
+        android:src="@drawable/loginactivitylogo"
         app:layout_constraintBottom_toTopOf="@+id/googleLoginButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"

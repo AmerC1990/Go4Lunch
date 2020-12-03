@@ -2,14 +2,11 @@ package com.amercosovic.go4lunch.activities
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.R
 import com.facebook.CallbackManager
@@ -27,8 +24,6 @@ import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -37,7 +32,7 @@ import kotlinx.coroutines.withContext
 class LoginActivity : AppCompatActivity() {
 
     var googleSignInClient: GoogleSignInClient? = null
-    var RC_SIGN_IN = 1000
+    var SIGN_IN_REQUESTCODE = 1000
     private var callbackManager = CallbackManager.Factory.create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,14 +63,14 @@ class LoginActivity : AppCompatActivity() {
 
     private fun googleLogin() {
         lifecycleScope.launch(IO) {
-            var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            var googleSignIn = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("827127043040-c3ai70jbjcb2ff7l28c2a78b5or44t4c.apps.googleusercontent.com")
                 .requestEmail()
                 .build()
-            googleSignInClient = GoogleSignIn.getClient(this@LoginActivity, gso)
+            googleSignInClient = GoogleSignIn.getClient(this@LoginActivity, googleSignIn)
             var signInIntent = googleSignInClient?.signInIntent
             withContext(Main) {
-                startActivityForResult(signInIntent, RC_SIGN_IN)
+                startActivityForResult(signInIntent, SIGN_IN_REQUESTCODE)
             }
         }
     }
@@ -136,7 +131,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         callbackManager.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == SIGN_IN_REQUESTCODE) {
             if (resultCode == Activity.RESULT_OK) {
                 lifecycleScope.launch(IO) {
                     getGoogleAccountAfterResult(data)

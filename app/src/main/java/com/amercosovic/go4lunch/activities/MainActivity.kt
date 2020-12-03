@@ -41,11 +41,7 @@ class MainActivity : AppCompatActivity() {
         val listViewFragment = RestaurantListFragment()
         val workmatesFragment = WorkmatesFragment()
 
-
             makeCurrentFragment(mapFragment)
-            mainActivityDrawerLayout?.let {
-                it.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            }
 
             bottomNavigation.setOnNavigationItemSelectedListener {
                 when (it.itemId) {
@@ -93,11 +89,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun logout() {
-        var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        var googleSignIn = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-        googleSignInClient = GoogleSignIn.getClient(this@MainActivity, gso)
+        googleSignInClient = GoogleSignIn.getClient(this@MainActivity, googleSignIn)
         FirebaseAuth.getInstance().signOut()
         LoginManager.getInstance().logOut()
         googleSignInClient?.signOut()

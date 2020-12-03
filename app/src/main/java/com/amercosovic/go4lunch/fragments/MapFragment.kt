@@ -17,13 +17,18 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.retrofit.ApiClient
+import com.amercosovic.go4lunch.viewmodels.MapFragmentViewModel
 import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
@@ -37,10 +42,11 @@ import kotlinx.coroutines.withContext
 
 class MapFragment : Fragment() , OnMapReadyCallback{
 
+    private var viewModel = MapFragmentViewModel()
     private lateinit var map: GoogleMap
     private var fusedLocationProvider: FusedLocationProviderClient? = null
-    private val INTERVAL: Long = 2000
-    private val FASTEST_INTERVAL: Long = 1000
+    private val INTERVAL: Long = 10000
+    private val FASTEST_INTERVAL: Long = 5000
     private lateinit var locationRequest: LocationRequest
     private val LOCATION_PERMISSION_REQUEST = 10
 
@@ -48,8 +54,7 @@ class MapFragment : Fragment() , OnMapReadyCallback{
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_map, container, false)
+    ): View? {        return inflater.inflate(R.layout.fragment_map, container, false)
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,6 +64,7 @@ class MapFragment : Fragment() , OnMapReadyCallback{
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        viewModel = ViewModelProvider(this).get(MapFragmentViewModel::class.java)
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             locationDisabledMessage()
         }
@@ -68,13 +74,46 @@ class MapFragment : Fragment() , OnMapReadyCallback{
         if (googleMap != null) {
             map = googleMap
         }
-        lifecycleScope.launch(IO) {
-            getLocationAccess()
+            lifecycleScope.launch(IO) {
+                getLocationAccess()
+            }
         }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        fusedLocationProvider?.lastLocation
+            ?.addOnSuccessListener { location : Location? ->
+                if (location != null) {
+                    viewModel.makeApiCall(location)
+                }
+            }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        attachObservers()
     }
 
 
-    private suspend fun getLocationAccess() {
+
+    suspend fun getLocationAccess() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED) {
             lifecycleScope.launch(Main) {
@@ -110,8 +149,7 @@ class MapFragment : Fragment() , OnMapReadyCallback{
             }
         }
     }
-
-    private fun locationDisabledMessage() {
+   private fun locationDisabledMessage() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setMessage("Your location is disabled, do you want to enable it?")
             .setCancelable(false)
@@ -132,8 +170,7 @@ class MapFragment : Fragment() , OnMapReadyCallback{
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
-
-    private fun startLocationUpdates() {
+   private fun startLocationUpdates() {
         // Create the location request to start receiving updates
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationRequest.setInterval(INTERVAL)
@@ -198,7 +235,7 @@ class MapFragment : Fragment() , OnMapReadyCallback{
 
                         val markers = map.addMarker(
                             MarkerOptions().position(newLatLng)
-                                .title(result.name).icon(bitmapDescriptorFromVector(requireContext(), R.drawable.map_marker))
+                                .title(result.name).icon(bitmapDescriptorFromVector(requireContext(),R.drawable.mapmarker))
                         )
                         builder.include(markers.position)
                         val bounds = builder.build()
@@ -229,6 +266,22 @@ class MapFragment : Fragment() , OnMapReadyCallback{
 
     private fun stopLocationUpdates() {
         fusedLocationProvider!!.removeLocationUpdates(locationCallback)
+    }
+
+    private fun attachObservers() {
+        viewModel.state.observe(this, Observer {state ->
+            when(state) {
+                is NearbyPlacesState.Loading -> {
+                // To Do
+                }
+                is NearbyPlacesState.Success -> {
+                    startLocationUpdates()
+                }
+                is Error -> {
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        })
     }
 
         override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

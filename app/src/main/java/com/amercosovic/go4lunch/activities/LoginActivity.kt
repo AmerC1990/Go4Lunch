@@ -40,8 +40,8 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
         this.supportActionBar?.hide()
         this.window.setFlags(
-        WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        WindowManager.LayoutParams.FLAG_FULLSCREEN
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
         );
 
         val animation = AnimationUtils.loadAnimation(this, R.anim.scale_up)
@@ -61,14 +61,14 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun googleLogin() {
+    private suspend fun googleLogin() {
         lifecycleScope.launch(IO) {
-            var googleSignIn = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            val googleSignIn = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("827127043040-c3ai70jbjcb2ff7l28c2a78b5or44t4c.apps.googleusercontent.com")
                 .requestEmail()
                 .build()
             googleSignInClient = GoogleSignIn.getClient(this@LoginActivity, googleSignIn)
-            var signInIntent = googleSignInClient?.signInIntent
+            val signInIntent = googleSignInClient?.signInIntent
             withContext(Main) {
                 startActivityForResult(signInIntent, SIGN_IN_REQUESTCODE)
             }
@@ -85,10 +85,12 @@ class LoginActivity : AppCompatActivity() {
                 override fun onSuccess(result: LoginResult?) {
                     lifecycleScope.launch(IO) {
                         firebaseAuthFacebook(result)
+                    }
                 }
-                }
+
                 override fun onCancel() {
                 }
+
                 override fun onError(error: FacebookException?) {
                 }
             })
@@ -97,17 +99,23 @@ class LoginActivity : AppCompatActivity() {
 
     private suspend fun firebaseAuthFacebook(result: LoginResult?) {
         lifecycleScope.launch(IO) {
-            val credential = FacebookAuthProvider.getCredential(result?.accessToken?.token!!)
+            val credential =
+                result?.accessToken?.token?.let { FacebookAuthProvider.getCredential(it) }
             withContext(Main) {
-                FirebaseAuth.getInstance().signInWithCredential(credential)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            overridePendingTransition(R.anim.slide_out_down, R.anim.slide_in_down)
-                            startActivity(intent)
-                        } else {
-                            Log.d("fbError", "signInWithCredential:failure", task.exception)
-                    }
+                if (credential != null) {
+                    FirebaseAuth.getInstance().signInWithCredential(credential)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                overridePendingTransition(
+                                    R.anim.slide_out_down,
+                                    R.anim.slide_in_down
+                                )
+                                startActivity(intent)
+                            } else {
+                                Log.d("fbError", "signInWithCredential:failure", task.exception)
+                            }
+                        }
                 }
             }
         }
@@ -117,13 +125,14 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch(IO) {
             val credential = GoogleAuthProvider.getCredential(acct?.idToken, null)
             withContext(Main) {
-            FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                    overridePendingTransition(R.anim.slide_out_down, R.anim.slide_in_down)
-                    startActivity(intent)
+                FirebaseAuth.getInstance().signInWithCredential(credential)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                            overridePendingTransition(R.anim.slide_out_down, R.anim.slide_in_down)
+                            startActivity(intent)
+                        }
                     }
-                }
             }
         }
     }

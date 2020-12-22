@@ -15,17 +15,17 @@ class MapFragmentViewModel: ViewModel() {
 
     val state: MutableLiveData<NearbyPlacesState> = MutableLiveData()
 
-     fun makeApiCall(location: Location) {
-        state.value = NearbyPlacesState.Loading
-        viewModelScope.launch(IO) {
-            val response = ApiClient.getClient.getNearbyPlaces(
-                location = "${location.latitude},${location.longitude}",
-                key = Constants.GOOGLE_API_KEY,
-                radius = Constants.RADIUS_1000,
-                types = Constants.TYPE_RESTAURANT
-            )
-            if (!response.results.isEmpty()) {
-                state.postValue(NearbyPlacesState.Success(response))
+     fun makeApiCall(latitude: String, longitude: String) {
+         state.value = NearbyPlacesState.Loading
+         viewModelScope.launch(IO) {
+             val response = ApiClient.getClient.getNearbyPlaces(
+                 location = "${latitude},${longitude}",
+                 key = Constants.GOOGLE_API_KEY,
+                 radius = Constants.RADIUS_1000,
+                 types = Constants.TYPE_RESTAURANT
+             )
+             if (!response.results.isEmpty()) {
+                 state.postValue(NearbyPlacesState.Success(response))
             }
             else {
                 state.postValue(NearbyPlacesState.Error("Error getting data"))

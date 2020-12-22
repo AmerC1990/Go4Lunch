@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="100dp">
+
+    <ImageView
+        android:id="@+id/restaurantRatingIcon3"
+        android:visibility="gone"
+        android:layout_width="20dp"
+        android:layout_height="14dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="126dp"
+        android:layout_marginBottom="17dp"
+        app:srcCompat="@drawable/ratingstaricon" />
+
+    <ImageView
+        android:id="@+id/restaurantRatingIcon2"
+        android:visibility="gone"
+        android:layout_width="20dp"
+        android:layout_height="14dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="109dp"
+        android:layout_marginBottom="17dp"
+        app:srcCompat="@drawable/ratingstaricon" />
+
+    <ImageView
+        android:id="@+id/restaurantRatingIcon1"
+        android:visibility="gone"
+        android:layout_width="20dp"
+        android:layout_height="14dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="92dp"
+        android:layout_marginBottom="17dp"
+        app:srcCompat="@drawable/ratingstaricon" />
+
+    <TextView
+        android:id="@+id/distanceFromUserToRestaurant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="199dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="10dp"
+        android:text="120m" />
+
+    <TextView
+        android:id="@+id/openUntilTextview"
+        android:layout_width="174dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="73dp"
+        android:layout_marginBottom="9dp"
+        android:text="Open until 7pm"
+        android:textColor="#2F353A"
+        android:textSize="13sp"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/typeAndAddressOfRestaurant"
+        android:layout_width="174dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="37dp"
+        android:text="Type - Address"
+        android:textColor="#2F353A"
+        android:textSize="13sp" />
+
+    <ImageView
+        android:id="@+id/restaurantImage"
+        android:layout_width="79dp"
+        android:layout_height="88dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="3dp"
+        android:layout_marginBottom="6dp"
+        app:srcCompat="@drawable/defaultrestaurantimage" />
+
+    <TextView
+        android:id="@+id/nameOfrestaurantTextview"
+        android:layout_width="174dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="7dp"
+        android:text="Name of Restaurant"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/defaultColleagueIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="33dp"
+        android:layout_marginEnd="109dp"
+        app:srcCompat="@drawable/default_colleague_icon" />
+
+    <TextView
+        android:id="@+id/numberOfColleaguesTextview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="33dp"
+        android:layout_marginEnd="92dp"
+        android:text="(2)"
+        android:textColor="#000000" />
+
+</RelativeLayout>

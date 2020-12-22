@@ -1,6 +1,7 @@
 package com.amercosovic.go4lunch.activities
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -42,8 +43,12 @@ class LoginActivity : AppCompatActivity() {
         this.window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
-        );
+        )
 
+        val sharedPrefs = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        editor.clear()
+        editor.apply()
         val animation = AnimationUtils.loadAnimation(this, R.anim.scale_up)
 
         googleLoginButton.setOnClickListener {

@@ -4,9 +4,12 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
 import androidx.fragment.app.Fragment
@@ -14,6 +17,7 @@ import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +46,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val INTERVAL: Long = 10000
-    private val FASTEST_INTERVAL: Long = 5000
+    private val FASTEST_INTERVAL: Long = 50000
     private lateinit var locationRequest: LocationRequest
     private val LOCATION_PERMISSION_REQUEST = 10
 
@@ -76,8 +80,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         attachObservers()
     }
 
@@ -90,11 +94,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             == PackageManager.PERMISSION_GRANTED
         ) {
             withContext(Main) {
-                map.isMyLocationEnabled = true
+                mapFraggmentProgressBar.visibility = View.VISIBLE
             }
-            fusedLocationProvider?.lastLocation
+            val locationRequest = LocationRequest.create()
+            locationRequest.interval = 60000
+            locationRequest.fastestInterval = 5000
+            locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation
                 ?.addOnSuccessListener { location: Location? ->
-                    val position = location?.let { LatLng(it.latitude, location.longitude) }
+                    val position = location?.let { LatLng(it.latitude, it.longitude) }
                     map.addMarker(
                         position?.let {
                             MarkerOptions().position(it).title("My Location")
@@ -114,7 +122,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                                 ), 15f
                             )
                         )
-                        viewModel.makeApiCall(location)
+                        viewModel.makeApiCall(
+                            location.latitude.toString(),
+                            location.longitude.toString()
+                        )
                     }
                 }
             startLocationUpdates()
@@ -151,32 +162,32 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
-        val vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
         vectorDrawable?.setBounds(
             0,
             0,
-            vectorDrawable.getIntrinsicWidth(),
-            vectorDrawable.getIntrinsicHeight()
-        );
-        val bitmap = vectorDrawable?.getIntrinsicWidth()?.let {
+            vectorDrawable.intrinsicWidth,
+            vectorDrawable.intrinsicHeight
+        )
+        val bitmap = vectorDrawable?.intrinsicWidth?.let {
             Bitmap.createBitmap(
                 it,
-                vectorDrawable.getIntrinsicHeight(),
+                vectorDrawable.intrinsicHeight,
                 Bitmap.Config.ARGB_8888
             )
-        };
-        val canvas = bitmap?.let { Canvas(it) };
+        }
+        val canvas = bitmap?.let { Canvas(it) }
         if (canvas != null) {
             vectorDrawable.draw(canvas)
-        };
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
+        }
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 
     private fun startLocationUpdates() {
         // Create the location request to start receiving updates
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.setInterval(INTERVAL)
-        locationRequest.setFastestInterval(FASTEST_INTERVAL)
+        locationRequest.interval = INTERVAL
+        locationRequest.fastestInterval = FASTEST_INTERVAL
 
         // Create LocationSettingsRequest object using location request
         val builder = LocationSettingsRequest.Builder()
@@ -207,7 +218,21 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun onLocationChanged(location: Location) {
-        viewModel.makeApiCall(location)
+        val position = LatLng(location.latitude, location.longitude)
+        map.addMarker(
+            MarkerOptions().position(position).title("My Location").icon(
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+            )
+        )
+        map.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(
+                    location.latitude,
+                    location.longitude
+                ), 15f
+            )
+        )
+        viewModel.makeApiCall(location.latitude.toString(), location.longitude.toString())
     }
 
     private val locationCallback = object : LocationCallback() {
@@ -216,18 +241,19 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             onLocationChanged(locationResult.lastLocation)
         }
     }
-
     private fun stopLocationUpdates() {
         fusedLocationProvider?.removeLocationUpdates(locationCallback)
     }
 
     private fun attachObservers() {
-        viewModel.state.observe(this, Observer { state ->
+        viewModel.state.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
                 is NearbyPlacesState.Loading -> {
-
+                    mapFraggmentProgressBar.visibility = View.VISIBLE
                 }
+
                 is NearbyPlacesState.Success -> {
+                    mapFraggmentProgressBar.visibility = View.GONE
                     stopLocationUpdates()
                     val results = state.nearbyPlacesResponse.results
                     val builder = LatLngBounds.Builder()
@@ -261,6 +287,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     }
                 }
                 is Error -> {
+                    mapFraggmentProgressBar.visibility = View.GONE
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                 }
             }

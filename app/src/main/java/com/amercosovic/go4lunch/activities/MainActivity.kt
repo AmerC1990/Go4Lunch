@@ -3,6 +3,7 @@ package com.amercosovic.go4lunch.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -34,18 +35,17 @@ class MainActivity : AppCompatActivity() {
     private val settingsFragment = SettingsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("lifecycle", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         this.supportActionBar?.hide()
-        searchView.setLayoutParams(androidx.appcompat.widget.Toolbar.LayoutParams(Gravity.RIGHT))
+        searchView.layoutParams = androidx.appcompat.widget.Toolbar.LayoutParams(Gravity.RIGHT)
         searchView.maxWidth = Int.MAX_VALUE
         val mapFragment = MapFragment()
 
         makeCurrentFragment(mapFragment)
         setupNavDrawer()
         setUpBottomNavClicks()
-
-
     }
 
     fun update(view: View) {

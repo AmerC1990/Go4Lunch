@@ -1,4 +1,9 @@
+package com.amercosovic.go4lunch.model
 
+import Geometry
+import OpeningHours
+import Photo
+import PlusCode
 import com.google.gson.annotations.SerializedName
 
 data class Result(

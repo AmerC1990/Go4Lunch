@@ -4,12 +4,9 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
 import androidx.fragment.app.Fragment
@@ -17,7 +14,6 @@ import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,13 +30,14 @@ import com.amercosovic.go4lunch.viewmodels.MapFragmentViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MapFragment : Fragment(), OnMapReadyCallback {
+class MapFragment : BaseFragment(), OnMapReadyCallback {
 
     private var viewModel = MapFragmentViewModel()
     private lateinit var map: GoogleMap
@@ -64,11 +61,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         viewModel = ViewModelProvider(this).get(MapFragmentViewModel::class.java)
-        val locationManager =
-            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            locationDisabledMessage()
-        }
+        isLocationOn()
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {
@@ -87,56 +80,37 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
 
     private suspend fun getLocationAccess() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            withContext(Main) {
-                mapFraggmentProgressBar.visibility = View.VISIBLE
-            }
-            val locationRequest = LocationRequest.create()
-            locationRequest.interval = 60000
-            locationRequest.fastestInterval = 5000
-            locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation
-                ?.addOnSuccessListener { location: Location? ->
-                    val position = location?.let { LatLng(it.latitude, it.longitude) }
-                    map.addMarker(
-                        position?.let {
-                            MarkerOptions().position(it).title("My Location")
-                                .icon(
-                                    BitmapDescriptorFactory.defaultMarker(
-                                        BitmapDescriptorFactory.HUE_RED
-                                    )
+        val getLocation = checkPermissionAndGetLocation()
+        getLocation?.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                val position = LatLng(location.latitude, location.longitude)
+                map.addMarker(
+                    position.let {
+                        MarkerOptions().position(it).title("My Location")
+                            .icon(
+                                BitmapDescriptorFactory.defaultMarker(
+                                    BitmapDescriptorFactory.HUE_RED
                                 )
-                        }
-                    )
-                    if (location != null) {
-                        map.moveCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(
-                                    location.latitude,
-                                    location.longitude
-                                ), 15f
                             )
-                        )
-                        viewModel.makeApiCall(
-                            location.latitude.toString(),
-                            location.longitude.toString()
-                        )
                     }
-                }
+                )
+                map.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            location.latitude,
+                            location.longitude
+                        ), 15f
+                    )
+                )
+                viewModel.makeApiCall(
+                    location.latitude.toString(),
+                    location.longitude.toString()
+                )
+            }
             startLocationUpdates()
         }
 
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (!checkPermission()) {
             withContext(Main) {
                 map.isMyLocationEnabled = false
                 val mapFragment =
@@ -146,19 +120,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 deniedPermissionMessage.visibility = View.VISIBLE
             }
         }
-    }
-
-    private fun locationDisabledMessage() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setMessage("Your location is disabled, do you want to enable it?")
-            .setCancelable(false)
-            .setPositiveButton("Yes") { dialog, id ->
-                startActivityForResult(
-                    Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), 11
-                )
-            }
-        val alert: AlertDialog = builder.create()
-        alert.show()
     }
 
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
@@ -241,6 +202,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             onLocationChanged(locationResult.lastLocation)
         }
     }
+
     private fun stopLocationUpdates() {
         fusedLocationProvider?.removeLocationUpdates(locationCallback)
     }
@@ -292,6 +254,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 }
             }
         })
+    }
+
+    private fun checkPermission(): Boolean {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
     }
 
     override fun onRequestPermissionsResult(

@@ -1,21 +1,17 @@
 package com.amercosovic.go4lunch.fragments
 
-import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -31,7 +27,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 
 
-class RestaurantListFragment : Fragment() {
+class RestaurantListFragment : BaseFragment() {
 
     lateinit var recyclerViewAdapter: RestaurantListAdapter
     private var viewModel = MapFragmentViewModel()
@@ -46,45 +42,29 @@ class RestaurantListFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        attachObservers()
-        val locationManager =
-            requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            locationDisabledMessage()
-        } else {
-            lifecycleScope.launch(IO) {
-                getLocationAccess()
-            }
+        isLocationOn()
+        lifecycleScope.launch(IO) {
+            getLocationAccess()
         }
+        attachObservers()
     }
 
     private fun getLocationAccess() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            val locationRequest = LocationRequest.create()
-            locationRequest.interval = 60000
-            locationRequest.fastestInterval = 5000
-            locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation
-                ?.addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        viewModel.makeApiCall(
-                            location.latitude.toString(),
-                            location.longitude.toString()
-                        )
-                        lifecycleScope.launch(Main) {
-                            initRecyclerView(
-                                location.latitude.toString(),
-                                location.longitude.toString()
-                            )
-                        }
-
-                    }
+        val getLocation = checkPermissionAndGetLocation()
+        getLocation?.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                viewModel.makeApiCall(
+                    location.latitude.toString(),
+                    location.longitude.toString()
+                )
+                lifecycleScope.launch(Main) {
+                    initRecyclerView(
+                        location.latitude.toString(),
+                        location.longitude.toString()
+                    )
                 }
+
+            }
         }
     }
 
@@ -117,17 +97,5 @@ class RestaurantListFragment : Fragment() {
         })
     }
 
-    private fun locationDisabledMessage() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setMessage("Your location is disabled, do you want to enable it?")
-            .setCancelable(false)
-            .setPositiveButton("Yes") { dialog, id ->
-                startActivityForResult(
-                    Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), 11
-                )
-            }
-        val alert: AlertDialog = builder.create()
-        alert.show()
-    }
 
 }

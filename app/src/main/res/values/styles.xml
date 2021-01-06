@@ -21,4 +21,11 @@
         <item name="android:background">@drawable/fb_login_button_style</item>
     </style>
 
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        // You can change thickness here.
+
+    </style>
+
 </resources>

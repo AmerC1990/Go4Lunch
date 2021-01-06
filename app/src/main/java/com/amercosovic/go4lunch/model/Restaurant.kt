@@ -1,28 +1,28 @@
 package com.amercosovic.go4lunch.model
 
-import Geometry
-import OpeningHours
-import Photo
-import PlusCode
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
-data class Result(
+@Parcelize
+data class Restaurant(
     @SerializedName("business_status")
     val businessStatus: String,
     @SerializedName("geometry")
-    val geometry: Geometry,
+    val geometry: @RawValue Geometry,
     @SerializedName("icon")
     val icon: String,
     @SerializedName("name")
     val name: String,
     @SerializedName("opening_hours")
-    val openingHours: OpeningHours,
+    val openingHours: @RawValue OpeningHours,
     @SerializedName("photos")
-    val photos: List<Photo>,
+    val photos: @RawValue List<Photo>,
     @SerializedName("place_id")
     val placeId: String,
     @SerializedName("plus_code")
-    val plusCode: PlusCode,
+    val plusCode: @RawValue PlusCode,
     @SerializedName("price_level")
     val priceLevel: Int,
     @SerializedName("rating")
@@ -37,4 +37,4 @@ data class Result(
     val userRatingsTotal: Int,
     @SerializedName("vicinity")
     val vicinity: String
-)
+) : Parcelable

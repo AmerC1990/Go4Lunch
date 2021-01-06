@@ -9,4 +9,10 @@
     <string name="google_sign_in">Sign in with Google</string>
     <string name="fb_sign_in">Sign in with Facebook</string>
     <string name="denied_permission_string">Location permission is required to view your location, please enable it in settings</string>
+    <string name="title_activity_restaurant_details">RestaurantDetailsActivity</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
 </resources>

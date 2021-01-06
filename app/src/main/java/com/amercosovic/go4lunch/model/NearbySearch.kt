@@ -1,8 +1,11 @@
+package com.amercosovic.go4lunch.model
 
-import com.amercosovic.go4lunch.model.Result
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class NearbySearch(
     @SerializedName("results")
-    val results: List<Result>
-)
+    val restaurants: List<Restaurant>
+) : Parcelable

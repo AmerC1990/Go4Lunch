@@ -1,7 +1,5 @@
 package com.amercosovic.go4lunch.viewmodels
 
-import NearbySearch
-import android.location.Location
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,12 +22,11 @@ class MapFragmentViewModel: ViewModel() {
                  radius = Constants.RADIUS_1000,
                  types = Constants.TYPE_RESTAURANT
              )
-             if (!response.results.isEmpty()) {
+             if (!response.restaurants.isEmpty()) {
                  state.postValue(NearbyPlacesState.Success(response))
-            }
-            else {
-                state.postValue(NearbyPlacesState.Error("Error getting data"))
-            }
+             } else {
+                 state.postValue(NearbyPlacesState.Error("Error getting data"))
+             }
         }
 
     }

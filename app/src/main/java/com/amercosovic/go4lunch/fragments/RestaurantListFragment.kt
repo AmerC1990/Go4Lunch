@@ -1,13 +1,7 @@
 package com.amercosovic.go4lunch.fragments
 
-import android.app.AlertDialog
-import android.content.Context
-import android.content.Intent
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
-import android.provider.Settings
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +14,6 @@ import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.adapters.RestaurantListAdapter
 import com.amercosovic.go4lunch.viewmodels.MapFragmentViewModel
-import com.google.android.gms.location.*
 import kotlinx.android.synthetic.main.fragment_restaurantlist.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -86,7 +79,7 @@ class RestaurantListFragment : BaseFragment() {
                 }
                 is NearbyPlacesState.Success -> {
                     restaurantListProgressBar.visibility = View.GONE
-                    recyclerViewAdapter.setListData(state.nearbyPlacesResponse.results)
+                    recyclerViewAdapter.setListData(state.nearbyPlacesResponse.restaurants)
                     recyclerViewAdapter.notifyDataSetChanged()
                 }
                 is Error -> {

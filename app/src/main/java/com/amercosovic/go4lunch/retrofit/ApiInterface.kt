@@ -1,7 +1,6 @@
 package com.amercosovic.go4lunch.retrofit
 
-import NearbySearch
-import retrofit2.Call
+import com.amercosovic.go4lunch.model.NearbySearch
 import retrofit2.http.GET
 import retrofit2.http.Query
 

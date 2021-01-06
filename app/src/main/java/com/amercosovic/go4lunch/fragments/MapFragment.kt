@@ -1,19 +1,16 @@
 package com.amercosovic.go4lunch.fragments
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.location.Location
-import android.location.LocationManager
-import androidx.fragment.app.Fragment
 
 import android.os.Bundle
 import android.os.Looper
-import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,11 +23,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.R
+import com.amercosovic.go4lunch.activities.RestaurantDetailsActivity
 import com.amercosovic.go4lunch.viewmodels.MapFragmentViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -77,7 +74,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         super.onActivityCreated(savedInstanceState)
         attachObservers()
     }
-
 
     private suspend fun getLocationAccess() {
         val getLocation = checkPermissionAndGetLocation()
@@ -217,9 +213,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                 is NearbyPlacesState.Success -> {
                     mapFraggmentProgressBar.visibility = View.GONE
                     stopLocationUpdates()
-                    val results = state.nearbyPlacesResponse.results
+                    val restaurantData = state.nearbyPlacesResponse.restaurants
                     val builder = LatLngBounds.Builder()
-                    for (item in results) {
+                    for (item in restaurantData) {
                         val newLatLng = LatLng(
                             item.geometry.location.lat,
                             item.geometry.location.lng
@@ -233,12 +229,27 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                                     )
                                 )
                         )
+                        map.setOnMarkerClickListener { it ->
+                            val markerName = it.title
+                            if (markerName.toString() == "My Location") {
+                                it.showInfoWindow()
+                            } else {
+                                val intent =
+                                    Intent(requireContext(), RestaurantDetailsActivity::class.java)
+                                intent.putExtra(
+                                    "restaurantDataFromMap",
+                                    restaurantData.filter { it.name == markerName }.toString()
+                                )
+                                startActivity(intent)
+                            }
+                            true
+                        }
+
                         builder.include(markers.position)
                         val bounds = builder.build()
                         val width = resources.displayMetrics.widthPixels
                         val height = resources.displayMetrics.heightPixels
                         val padding = (width * 0.10).toInt()
-
                         val cameraUpdate = CameraUpdateFactory.newLatLngBounds(
                             bounds,
                             width,

@@ -8,33 +8,34 @@ import kotlinx.android.parcel.RawValue
 @Parcelize
 data class Restaurant(
     @SerializedName("business_status")
-    val businessStatus: String,
+    var businessStatus: String?,
     @SerializedName("geometry")
-    val geometry: @RawValue Geometry,
+    var geometry: @RawValue Geometry,
     @SerializedName("icon")
-    val icon: String,
+    var icon: String?,
     @SerializedName("name")
-    val name: String,
+    var name: String?,
     @SerializedName("opening_hours")
-    val openingHours: @RawValue OpeningHours,
+    var openingHours: @RawValue OpeningHours?,
     @SerializedName("photos")
-    val photos: @RawValue List<Photo>,
+    var photos: @RawValue List<Photo?>?,
     @SerializedName("place_id")
-    val placeId: String,
+    var placeId: String?,
     @SerializedName("plus_code")
-    val plusCode: @RawValue PlusCode,
+    var plusCode: @RawValue PlusCode?,
     @SerializedName("price_level")
-    val priceLevel: Int,
+    var priceLevel: Int?,
     @SerializedName("rating")
-    val rating: Double,
+    var rating: Double?,
     @SerializedName("reference")
-    val reference: String,
+    var reference: String?,
     @SerializedName("scope")
-    val scope: String,
+    var scope: String?,
     @SerializedName("types")
-    val types: List<String>,
+    var types: List<String?>?,
     @SerializedName("user_ratings_total")
-    val userRatingsTotal: Int,
+    var userRatingsTotal: Int?,
     @SerializedName("vicinity")
-    val vicinity: String
+    var vicinity: String?
 ) : Parcelable
+

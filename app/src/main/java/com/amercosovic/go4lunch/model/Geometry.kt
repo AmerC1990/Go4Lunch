@@ -8,7 +8,7 @@ import kotlinx.android.parcel.RawValue
 @Parcelize
 data class Geometry(
     @SerializedName("location")
-    val location: @RawValue Location,
+    var location: @RawValue Location,
     @SerializedName("viewport")
-    val viewport: @RawValue Viewport
+    var viewport: @RawValue Viewport
 ) : Parcelable

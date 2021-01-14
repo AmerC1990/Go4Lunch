@@ -216,18 +216,24 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                     val restaurantData = state.nearbyPlacesResponse.restaurants
                     val builder = LatLngBounds.Builder()
                     for (item in restaurantData) {
-                        val newLatLng = LatLng(
-                            item.geometry.location.lat,
-                            item.geometry.location.lng
-                        )
-                        val markers = map.addMarker(
-                            MarkerOptions().position(newLatLng)
-                                .title(item.name).icon(
-                                    bitmapDescriptorFromVector(
-                                        requireContext(),
-                                        R.drawable.mapmarker
-                                    )
+                        val newLatLng = item.geometry.location.lat.let {
+                            item.geometry.location.lng.let { it1 ->
+                                LatLng(
+                                    it,
+                                    it1
                                 )
+                            }
+                        }
+                        val markers = map.addMarker(
+                            newLatLng.let {
+                                MarkerOptions().position(it)
+                                    .title(item.name).icon(
+                                        bitmapDescriptorFromVector(
+                                            requireContext(),
+                                            R.drawable.mapmarker
+                                        )
+                                    )
+                            }
                         )
                         map.setOnMarkerClickListener { it ->
                             val markerName = it.title

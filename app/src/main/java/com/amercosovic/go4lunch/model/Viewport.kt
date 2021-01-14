@@ -10,7 +10,7 @@ import kotlinx.android.parcel.RawValue
 @Parcelize
 data class Viewport(
     @SerializedName("northeast")
-    val northeast: @RawValue Northeast,
+    val northeast: @RawValue Northeast?,
     @SerializedName("southwest")
-    val southwest: @RawValue Southwest
+    val southwest: @RawValue Southwest?
 ) : Parcelable

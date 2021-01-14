@@ -41,17 +41,19 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
         val restaurantName = restaurantData.name
 
         holder.restaurantName.text =
-            restaurantName.substring(0, Math.min(restaurantName.length, 21))
+            restaurantName?.substring(0, Math.min(restaurantName.length, 21))
+                ?: "Restaurant Name"
 
-        val restaurantAddress = restaurantData.vicinity.toString().substringBefore(",")
-            .replace("West", "W.").replace("East", "E.").replace("North", "N.")
-            .replace("South", "S.").replace("Avenue", "")
+        val restaurantAddress = restaurantData.vicinity?.toString()?.substringBefore(",")
+            ?.replace("West", "W.")?.replace("East", "E.")?.replace("North", "N.")
+            ?.replace("South", "S.")?.replace("Avenue", "")
 
         holder.restaurantAddress.text =
-            restaurantAddress.substring(0, Math.min(restaurantAddress.length, 18))
+            restaurantAddress?.substring(0, Math.min(restaurantAddress.length, 18))
+                ?: "Restaurant Address"
 
-        if (restaurantData.openingHours.openNow != null) {
-            if (restaurantData.openingHours.openNow.toString() == "true") {
+        if (restaurantData.openingHours?.openNow != null) {
+            if (restaurantData.openingHours?.openNow.toString() == "true") {
                 holder.openUntil.text = "Open Now"
                 holder.openUntil.setTextColor(Color.GREEN)
             } else {
@@ -61,30 +63,35 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
 
         }
 
-        val rating = restaurantData.rating / 1.66
+        val rating = restaurantData.rating?.div(1.66)
 
-        when {
-            rating.toString().contains("1.") -> {
-                holder.rating1Star.visibility = View.VISIBLE
-            }
-            rating.toString().contains("2.") -> {
-                holder.rating1Star.visibility = View.VISIBLE
-                holder.rating2Star.visibility = View.VISIBLE
-            }
-            rating.toString().contains("3.") -> {
-                holder.rating1Star.visibility = View.VISIBLE
-                holder.rating2Star.visibility = View.VISIBLE
-                holder.rating3Star.visibility = View.VISIBLE
+        if (rating != null) {
+            when {
+                rating.toString().contains("1.") -> {
+                    holder.rating1Star.visibility = View.VISIBLE
+                }
+                rating.toString().contains("2.") -> {
+                    holder.rating1Star.visibility = View.VISIBLE
+                    holder.rating2Star.visibility = View.VISIBLE
+                }
+                rating.toString().contains("3.") -> {
+                    holder.rating1Star.visibility = View.VISIBLE
+                    holder.rating2Star.visibility = View.VISIBLE
+                    holder.rating3Star.visibility = View.VISIBLE
+                }
             }
         }
 
         val myLocation = LatLng(latitude.toDouble(), longitude.toDouble())
+
         val restaurantLocation = LatLng(
             restaurantData.geometry.location.lat, restaurantData.geometry.location.lat
         )
         val distance =
             (computeDistanceBetween(myLocation, restaurantLocation)).toString().subSequence(0, 3)
-        holder.distanceFromUser.text = distance.toString() + "m"
+                .toString() + "m"
+
+        holder.distanceFromUser.text = if (distance != null) distance else "distance unknown"
 
         if (restaurantData.photos != null) {
             Glide.with(holder.imageOfRestaurant)
@@ -95,6 +102,13 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
                                 .substringBefore(" ") + "&key="
                             + Constants.GOOGLE_API_KEY
                 )
+                .centerCrop()
+                .placeholder(R.drawable.defaultrestaurantimage)
+                .error(R.drawable.defaultrestaurantimage)
+                .into(holder.imageOfRestaurant)
+        } else if (restaurantData.photos == null) {
+            Glide.with(holder.imageOfRestaurant)
+                .load(R.drawable.defaultrestaurantimage)
                 .centerCrop()
                 .placeholder(R.drawable.defaultrestaurantimage)
                 .error(R.drawable.defaultrestaurantimage)

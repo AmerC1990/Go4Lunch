@@ -16,7 +16,7 @@
         android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mainInfoStripeImageview"
         app:layout_constraintVertical_bias="0.0" />
@@ -64,10 +64,10 @@
         android:layout_height="272dp"
         app:layout_constraintBottom_toTopOf="@+id/mainInfoStripeImageview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/defaultrestaurantimage" />
 
     <ImageView
@@ -170,23 +170,6 @@
         app:srcCompat="@drawable/ratingstaricon" />
 
     <ImageView
-        android:id="@+id/restaurantChosenCheckMark"
-        android:layout_width="67dp"
-        android:layout_height="67dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="9dp"
-        android:layout_marginBottom="71dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/mainInfoStripeImageview"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.911"
-        app:srcCompat="@drawable/greencheckmark" />
-
-    <ImageView
         android:id="@+id/callIcon"
         android:layout_width="27dp"
         android:layout_height="28dp"
@@ -250,8 +233,9 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="412dp"
-        android:layout_height="267dp"
+        android:id="@+id/singleRestaurantRecyclerView"
+        android:layout_width="406dp"
+        android:layout_height="246dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -270,5 +254,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.634" />
+
+    <ImageView
+        android:id="@+id/plusIcon"
+        android:layout_width="50dp"
+        android:layout_height="38dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.98"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.311"
+        app:srcCompat="@drawable/whiteplusicon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

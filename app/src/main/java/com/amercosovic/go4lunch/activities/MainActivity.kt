@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.fragments.*
+import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
+import com.bumptech.glide.Glide
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -21,6 +23,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationMenu
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_restaurant_details.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -35,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private val settingsFragment = SettingsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("lifecycle", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         this.supportActionBar?.hide()
@@ -46,6 +48,24 @@ class MainActivity : AppCompatActivity() {
         makeCurrentFragment(mapFragment)
         setupNavDrawer()
         setUpBottomNavClicks()
+
+        usernameTextview.text = FirebaseAuth.getInstance().currentUser?.displayName
+        if (!FirebaseAuth.getInstance().currentUser?.email.toString().isNullOrEmpty()) {
+            userEmailTextview.text = FirebaseAuth.getInstance().currentUser?.email
+        } else {
+            userEmailTextview.text = ""
+        }
+
+
+        Glide.with(currentUserImageView)
+            .load(FirebaseAuth.getInstance().currentUser?.photoUrl)
+            .centerCrop()
+            .circleCrop()
+            .placeholder(R.drawable.default_colleague_icon)
+            .error(R.drawable.default_colleague_icon)
+            .into(currentUserImageView)
+
+        Log.d("TAGImage", FirebaseAuth.getInstance().currentUser?.photoUrl.toString())
     }
 
     fun update(view: View) {

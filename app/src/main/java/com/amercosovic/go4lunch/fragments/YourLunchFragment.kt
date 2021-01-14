@@ -17,9 +17,6 @@ class YourLunchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val layoutInflater = inflater.inflate(R.layout.fragment_yourlunch, container, false)
-        val navDrawer: DrawerLayout = activity!!.mainActivityDrawerLayout
-        navDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        return layoutInflater
+        return inflater.inflate(R.layout.fragment_yourlunch, container, false)
     }
 }

@@ -7,5 +7,5 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class OpeningHours(
     @SerializedName("open_now")
-    val openNow: Boolean
+    var openNow: Boolean?
 ) : Parcelable

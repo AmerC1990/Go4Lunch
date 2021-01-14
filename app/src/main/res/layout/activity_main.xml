@@ -59,90 +59,137 @@
     </LinearLayout>
 
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/navDrawerLayout"
         android:layout_width="300dp"
         android:layout_height="match_parent"
-        android:background="#99E8C5"
         android:layout_gravity="start"
+        android:background="#99E8C5"
         android:orientation="vertical">
 
         <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/drawerLayoutMainImageView"
             android:layout_width="match_parent"
             android:layout_height="275dp"
-            android:background="@drawable/sandwichicon"
-            />
+            android:background="@drawable/defaultdrawerlayoutimage"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
 
         <TextView
-            android:foreground="@drawable/ripple_effect"
-            android:background="#99E8C5"
             android:id="@+id/usernameTextview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
+            android:foreground="@drawable/ripple_effect"
             android:onClick="update"
-            android:textColor="#000000"
-            android:textSize="20sp"
+            android:padding="20dp"
             android:text="User Name"
-            android:textAlignment="viewEnd"/>
+            android:textAlignment="textEnd"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/drawerLayoutMainImageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/drawerLayoutMainImageView"
+            app:layout_constraintVertical_bias="0.398" />
 
         <TextView
-            android:foreground="@drawable/ripple_effect"
-            android:background="#99E8C5"
             android:id="@+id/userEmailTextview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
+            android:foreground="@drawable/ripple_effect"
             android:onClick="update"
-            android:textColor="#000000"
+            android:padding="20dp"
             android:text="User Email"
-            android:textSize="20sp"
-            android:layout_marginBottom="40dp"
-            android:textAlignment="viewEnd"/>
-
+            android:textAlignment="textEnd"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.31" />
 
         <TextView
-            android:foreground="@drawable/ripple_effect"
-            android:background="#99E8C5"
             android:id="@+id/yourLunchButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
+            android:background="#99E8C5"
+            android:drawableStart="@drawable/your_lunch_icon"
+            android:foreground="@drawable/ripple_effect"
             android:onClick="update"
-            android:textColor="#000000"
+            android:padding="20dp"
             android:text="Your Lunch"
-            android:textSize="20sp"
             android:textAlignment="viewEnd"
-            android:drawableStart="@drawable/your_lunch_icon"/>
+            android:textColor="#000000"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.46" />
 
         <TextView
-            android:foreground="@drawable/ripple_effect"
-            android:background="#99E8C5"
             android:id="@+id/settingsButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
+            android:background="#99E8C5"
+            android:drawableStart="@drawable/settings"
+            android:foreground="@drawable/ripple_effect"
             android:onClick="update"
-            android:textColor="#000000"
+            android:padding="20dp"
             android:text="Settings"
-            android:textSize="20sp"
             android:textAlignment="viewEnd"
-            android:drawableStart="@drawable/settings"/>
+            android:textColor="#000000"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.581" />
 
         <TextView
-            android:foreground="@drawable/ripple_effect"
-            android:background="#99E8C5"
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
+            android:background="#99E8C5"
+            android:drawableStart="@drawable/logout_icon"
+            android:foreground="@drawable/ripple_effect"
             android:onClick="update"
-            android:textColor="#000000"
+            android:padding="20dp"
             android:text="Logout"
-            android:textSize="20sp"
             android:textAlignment="viewEnd"
-            android:drawableStart="@drawable/logout_icon"/>
-    </LinearLayout>
+            android:textColor="#000000"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.682" />
+
+        <ImageView
+            android:id="@+id/currentUserImageView"
+            android:layout_width="95dp"
+            android:layout_height="85dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.254"
+            app:srcCompat="@drawable/default_colleague_icon" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.drawerlayout.widget.DrawerLayout>

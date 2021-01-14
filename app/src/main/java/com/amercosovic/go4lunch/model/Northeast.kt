@@ -7,7 +7,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class Northeast(
     @SerializedName("lat")
-    val lat: Double,
+    var lat: Double?,
     @SerializedName("lng")
-    val lng: Double
+    var lng: Double?
 ) : Parcelable

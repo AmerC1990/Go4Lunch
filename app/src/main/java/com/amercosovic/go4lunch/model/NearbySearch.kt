@@ -7,5 +7,5 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class NearbySearch(
     @SerializedName("results")
-    val restaurants: List<Restaurant>
+    var restaurants: List<Restaurant>
 ) : Parcelable

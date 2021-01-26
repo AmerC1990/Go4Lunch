@@ -15,16 +15,20 @@ import com.amercosovic.go4lunch.model.Restaurant
 import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
 import com.bumptech.glide.Glide
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.maps.android.SphericalUtil.computeDistanceBetween
 import kotlinx.android.synthetic.main.fragment_restaurantlist_row.view.*
+
 
 class RestaurantListAdapter(private val latitude: String, private val longitude: String) :
     RecyclerView.Adapter<RestaurantListAdapter.ViewHolder>() {
 
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     var items: List<Restaurant> = ArrayList()
 
     fun setListData(data: List<Restaurant>) {
         this.items = data
+        Log.d("searchViewData", data.toString())
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -38,11 +42,10 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val restaurantData = items[position]
 
-        val restaurantName = restaurantData.name
+        val restaurantName = restaurantData.name + " "
 
         holder.restaurantName.text =
-            restaurantName?.substring(0, Math.min(restaurantName.length, 21))
-                ?: "Restaurant Name"
+            restaurantName.substring(0, Math.min(restaurantName.length, 21))
 
         val restaurantAddress = restaurantData.vicinity?.toString()?.substringBefore(",")
             ?.replace("West", "W.")?.replace("East", "E.")?.replace("North", "N.")
@@ -84,14 +87,14 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
 
         val myLocation = LatLng(latitude.toDouble(), longitude.toDouble())
 
-        val restaurantLocation = LatLng(
-            restaurantData.geometry.location.lat, restaurantData.geometry.location.lat
-        )
-        val distance =
-            (computeDistanceBetween(myLocation, restaurantLocation)).toString().subSequence(0, 3)
-                .toString() + "m"
 
-        holder.distanceFromUser.text = if (distance != null) distance else "distance unknown"
+        val restaurantLocation = LatLng(
+            restaurantData.geometry.location.lat, restaurantData.geometry.location.lng
+        )
+
+
+        val distance = computeDistanceBetween(myLocation, restaurantLocation).toString()
+        holder.distanceFromUser.text = distance.toString().substringBefore(".") + "m"
 
         if (restaurantData.photos != null) {
             Glide.with(holder.imageOfRestaurant)
@@ -115,12 +118,28 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
                 .into(holder.imageOfRestaurant)
         }
 
-        Log.d(
-            "distancerest:", holder.distanceFromUser.text.toString() + "-" +
-                    holder.restaurantName.text.toString()
-        )
+        val userRef = db.collection(restaurantName)
+        userRef.get().addOnSuccessListener { snapshot ->
+            userRef.document("count").get().addOnSuccessListener { documentSnapshot ->
+                if (!documentSnapshot["count"].toString()
+                        .contains("null") && documentSnapshot["count"].toString() != "0"
+                ) {
+                    holder.numberOfColleagues.text =
+                        "(" + documentSnapshot["count"].toString() + ")"
+                    holder.numberOfColleagues.visibility = View.VISIBLE
+                    holder.colleagueIcon.visibility = View.VISIBLE
+                    Log.d(
+                        "pljunuti",
+                        (holder.restaurantName.text.toString() + " " + documentSnapshot["count"].toString())
+                    )
+                } else {
+                    holder.numberOfColleagues.visibility = View.INVISIBLE
+                    holder.colleagueIcon.visibility = View.INVISIBLE
+                    holder.numberOfColleagues.text = ""
+                }
+            }
 
-        Log.d("between", holder.distanceFromUser.text.toString())
+        }
 
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, RestaurantDetailsActivity::class.java)
@@ -128,6 +147,7 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
             holder.itemView.context.startActivity(intent)
         }
     }
+
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val restaurantName: TextView = itemView.nameOfrestaurantTextview
@@ -138,7 +158,10 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
         val rating1Star: ImageView = itemView.restaurantRatingIcon1
         val rating2Star: ImageView = itemView.restaurantRatingIcon2
         val rating3Star: ImageView = itemView.restaurantRatingIcon3
-
+        val numberOfColleagues: TextView = itemView.numberOfColleaguesTextview
+        val colleagueIcon: ImageView = itemView.defaultColleagueIcon
 
     }
+
+
 }

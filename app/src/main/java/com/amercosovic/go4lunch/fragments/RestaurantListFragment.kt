@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -14,6 +15,7 @@ import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.adapters.RestaurantListAdapter
 import com.amercosovic.go4lunch.viewmodels.MapFragmentViewModel
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_restaurantlist.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -22,8 +24,8 @@ import kotlinx.coroutines.launch
 
 class RestaurantListFragment : BaseFragment() {
 
-    lateinit var recyclerViewAdapter: RestaurantListAdapter
     private var viewModel = MapFragmentViewModel()
+    lateinit var recyclerViewAdapter: RestaurantListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,6 +42,37 @@ class RestaurantListFragment : BaseFragment() {
             getLocationAccess()
         }
         attachObservers()
+        val searchView = activity?.searchView
+
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                if (viewModel.state.value is NearbyPlacesState.Success) {
+                    val filteredData =
+                        (viewModel.state.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants.filter {
+                            it.name.contains(
+                                searchView.query,
+                                ignoreCase = true
+                            )
+                        }
+                    recyclerViewAdapter.setListData(filteredData)
+                    recyclerViewAdapter.notifyDataSetChanged()
+                    when (searchView.query.toString()) {
+                        "" -> {
+                            recyclerViewAdapter.setListData((viewModel.state.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants)
+                            recyclerViewAdapter.notifyDataSetChanged()
+                        }
+                    }
+                } else {
+//                    Toast.makeText(requireContext(), "Failed to update List", Toast.LENGTH_LONG).show()
+                }
+                return false
+            }
+        })
+
     }
 
     private fun getLocationAccess() {
@@ -89,6 +122,6 @@ class RestaurantListFragment : BaseFragment() {
             }
         })
     }
-
-
 }
+
+

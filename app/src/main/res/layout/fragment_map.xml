@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout
-xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".fragments.MapFragment">
-
-<RelativeLayout
-    android:id="@+id/relativeLayoutMapFragment"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".fragments.MapFragment">
+
 
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="560dp"
-        tools:context=".fragments.MapFragment"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/geolocalizationButton"
+        app:layout_constraintVertical_bias="1.0"
+        tools:context=".fragments.MapFragment">
+
+
     </fragment>
 
     <TextView
         android:id="@+id/deniedPermissionMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:fontFamily="@font/candal"
         android:foregroundGravity="center"
         android:gravity="center"
@@ -38,15 +39,19 @@ tools:context=".fragments.MapFragment">
         android:textAlignment="center"
         android:textColor="#000000"
         android:textSize="30sp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
-        android:visibility="gone"
         android:id="@+id/mapFraggmentProgressBar"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="206dp"
-        android:layout_marginBottom="-186dp"
+        android:layout_centerInParent="true"
         android:backgroundTint="#000000"
         android:duplicateParentState="false"
         android:fadeScrollbars="true"
@@ -59,7 +64,36 @@ tools:context=".fragments.MapFragment">
         android:paddingBottom="25dp"
         android:secondaryProgressTint="#292626"
         android:soundEffectsEnabled="true"
-        android:layout_centerInParent="true" />
-</RelativeLayout>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <ImageView
+        android:id="@+id/geolocalizationButton"
+        android:layout_width="70dp"
+        android:layout_height="65dp"
+        android:src="@drawable/whitecircle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.951"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.975" />
+
+    <ImageView
+        android:id="@+id/geolocalizationImage"
+        android:layout_width="30dp"
+        android:layout_height="25dp"
+        android:src="@drawable/location_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.894"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.937" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

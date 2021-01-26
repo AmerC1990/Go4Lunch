@@ -14,7 +14,7 @@ data class Restaurant(
     @SerializedName("icon")
     var icon: String?,
     @SerializedName("name")
-    var name: String?,
+    var name: String,
     @SerializedName("opening_hours")
     var openingHours: @RawValue OpeningHours?,
     @SerializedName("photos")

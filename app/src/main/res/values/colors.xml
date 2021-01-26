@@ -6,5 +6,7 @@
     <color name="myWhite">#FEFFFF</color>
     <color name="myGold">#D5C073</color>
     <color name="myMaroon">#8F3D3D</color>
+    <color name="myLightGrey">#AFACAC</color>
+    <color name="myBlack">#070606</color>
 
 </resources>

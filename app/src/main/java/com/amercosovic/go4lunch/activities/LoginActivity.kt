@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.R
 import com.facebook.CallbackManager
@@ -24,7 +25,9 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_restaurant_details.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -32,6 +35,7 @@ import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
 
+    val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     var googleSignInClient: GoogleSignInClient? = null
     var SIGN_IN_REQUESTCODE = 1000
     private var callbackManager = CallbackManager.Factory.create()
@@ -111,6 +115,7 @@ class LoginActivity : AppCompatActivity() {
                     FirebaseAuth.getInstance().signInWithCredential(credential)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
+                                addFirestoreDocIfDoesntExist()
                                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
                                 overridePendingTransition(
                                     R.anim.slide_out_down,
@@ -133,6 +138,7 @@ class LoginActivity : AppCompatActivity() {
                 FirebaseAuth.getInstance().signInWithCredential(credential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
+                            addFirestoreDocIfDoesntExist()
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
                             overridePendingTransition(R.anim.slide_out_down, R.anim.slide_in_down)
                             startActivity(intent)
@@ -160,5 +166,30 @@ class LoginActivity : AppCompatActivity() {
             val account = task.getResult(ApiException::class.java)
             firebaseAuthWithGoogle(account)
         }
+    }
+
+    private fun addFirestoreDocIfDoesntExist() {
+        val userName: String = FirebaseAuth.getInstance().currentUser?.displayName.toString()
+        val docRef = db.collection("users").document(userName)
+        docRef.get().addOnSuccessListener { document ->
+            if (document?.data.isNullOrEmpty()) {
+                addUserToFireStore(userName)
+            }
+        }
+    }
+
+    private fun addUserToFireStore(userName: String) {
+        val user = hashMapOf(
+            "userName" to userName,
+            "userImage" to FirebaseAuth.getInstance().currentUser?.photoUrl.toString(),
+            "userRestaurant" to "undecided"
+        )
+
+        db.collection("users").document(userName)
+            .set(user as Map<String, Any>).addOnSuccessListener { documentReference ->
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Error", exception.message)
+            }
     }
 }

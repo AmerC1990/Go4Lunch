@@ -7,15 +7,14 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.location.Location
-
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -26,8 +25,14 @@ import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.activities.RestaurantDetailsActivity
 import com.amercosovic.go4lunch.viewmodels.MapFragmentViewModel
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.*
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -36,6 +41,7 @@ import kotlinx.coroutines.withContext
 
 class MapFragment : BaseFragment(), OnMapReadyCallback {
 
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private var viewModel = MapFragmentViewModel()
     private lateinit var map: GoogleMap
     private var fusedLocationProvider: FusedLocationProviderClient? = null
@@ -68,6 +74,68 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         lifecycleScope.launch(IO) {
             getLocationAccess()
         }
+        val searchView = activity?.searchView
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                if (viewModel.state.value is NearbyPlacesState.Success) {
+                    val filteredData =
+                        (viewModel.state.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants.filter {
+                            it.name.contains(
+                                searchView.query,
+                                ignoreCase = true
+                            )
+                        }
+                    val builder = LatLngBounds.Builder()
+                    for (item in filteredData) {
+                        val newLatLng = item.geometry.location.lat.let {
+                            item.geometry.location.lng.let { it1 ->
+                                LatLng(
+                                    it,
+                                    it1
+                                )
+                            }
+                        }
+                        val markers = map.addMarker(
+                            newLatLng.let {
+                                MarkerOptions().position(it)
+                                    .title(item.name).icon(
+                                        bitmapDescriptorFromVector(
+                                            requireContext(),
+                                            R.drawable.customredmarker
+                                        )
+                                    )
+                            }
+                        )
+                        val markerList = listOf(markers)
+                        val reference = db.collection("users")
+                        maintainMarkerColor(reference, markerList)
+
+                        builder.include(markers.position)
+                        val bounds = builder.build()
+                        val width = resources.displayMetrics.widthPixels
+                        val height = resources.displayMetrics.heightPixels
+                        val padding = (width * 0.10).toInt()
+                        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(
+                            bounds,
+                            width,
+                            height,
+                            padding
+                        )
+                        map.animateCamera(cameraUpdate)
+                        geolocalizationButton.setOnClickListener {
+                            map.animateCamera(cameraUpdate)
+                        }
+                    }
+                } else {
+//                    Toast.makeText(requireContext(), "Failed to update Map", Toast.LENGTH_LONG).show()
+                }
+                return false
+            }
+        })
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -84,9 +152,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                     position.let {
                         MarkerOptions().position(it).title("My Location")
                             .icon(
-                                BitmapDescriptorFactory.defaultMarker(
-                                    BitmapDescriptorFactory.HUE_RED
-                                )
+                                this.context?.let { it1 ->
+                                    bitmapDescriptorFromVector(
+                                        it1,
+                                        R.drawable.custombluehomemarker
+                                    )
+                                }
                             )
                     }
                 )
@@ -178,7 +249,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         val position = LatLng(location.latitude, location.longitude)
         map.addMarker(
             MarkerOptions().position(position).title("My Location").icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+                this.context?.let {
+                    bitmapDescriptorFromVector(
+                        it,
+                        R.drawable.custombluehomemarker
+                    )
+                }
             )
         )
         map.moveCamera(
@@ -228,26 +304,33 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                             newLatLng.let {
                                 MarkerOptions().position(it)
                                     .title(item.name).icon(
-                                        bitmapDescriptorFromVector(
-                                            requireContext(),
-                                            R.drawable.mapmarker
-                                        )
+                                        this.context?.let { it1 ->
+                                            bitmapDescriptorFromVector(
+                                                it1,
+                                                R.drawable.customredmarker
+                                            )
+                                        }
                                     )
                             }
                         )
+                        val markerList = listOf(markers)
+                        val reference = db.collection("users")
+                        maintainMarkerColor(reference, markerList)
+
                         map.setOnMarkerClickListener { it ->
                             val markerName = it.title
                             if (markerName.toString() == "My Location") {
                                 it.showInfoWindow()
                             } else {
                                 val intent =
-                                    Intent(requireContext(), RestaurantDetailsActivity::class.java)
+                                    Intent(this.context, RestaurantDetailsActivity::class.java)
                                 intent.putExtra(
                                     "restaurantDataFromMap",
                                     restaurantData.filter { it.name == markerName }.toString()
                                 )
                                 startActivity(intent)
                             }
+
                             true
                         }
 
@@ -263,11 +346,15 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                             padding
                         )
                         map.animateCamera(cameraUpdate)
+                        geolocalizationButton.setOnClickListener {
+                            map.animateCamera(cameraUpdate)
+                        }
+
                     }
                 }
                 is Error -> {
                     mapFraggmentProgressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this.context, state.message, Toast.LENGTH_LONG).show()
                 }
             }
         })
@@ -310,6 +397,35 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                     deniedPermissionMessage.visibility = View.VISIBLE
                 }
                 map.isMyLocationEnabled = true
+            }
+        }
+    }
+
+    private fun maintainMarkerColor(reference: CollectionReference, markerList: List<Marker>) {
+        reference.addSnapshotListener { value, error ->
+            for (marker in markerList) {
+                reference.whereEqualTo("userRestaurant", marker.title.toString() + " ").get()
+                    .addOnSuccessListener { documents ->
+                        for (document in documents) {
+                            if (document.data.toString().contains(marker.title.toString())) {
+                                marker.setIcon(this.context?.let {
+                                    bitmapDescriptorFromVector(
+                                        it,
+                                        R.drawable.customgreenmarker
+                                    )
+                                })
+                            } else if (!document.data.toString()
+                                    .contains(marker.title.toString())
+                            ) {
+                                marker.setIcon(this.context?.let {
+                                    bitmapDescriptorFromVector(
+                                        it,
+                                        R.drawable.customredmarker
+                                    )
+                                })
+                            }
+                        }
+                    }
             }
         }
     }

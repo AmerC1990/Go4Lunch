@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amercosovic.go4lunch.NearbyPlacesState
+import com.amercosovic.go4lunch.model.Restaurant
 import com.amercosovic.go4lunch.retrofit.ApiClient
 import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
 import kotlinx.coroutines.Dispatchers.IO
@@ -30,4 +31,5 @@ class MapFragmentViewModel: ViewModel() {
         }
 
     }
+
 }

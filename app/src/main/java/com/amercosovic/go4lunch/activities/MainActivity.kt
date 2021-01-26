@@ -3,27 +3,25 @@ package com.amercosovic.go4lunch.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.fragments.*
-import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
 import com.bumptech.glide.Glide
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.material.bottomnavigation.BottomNavigationMenu
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_restaurant_details.*
+import kotlinx.android.synthetic.main.fragment_restaurantlist.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -32,17 +30,18 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
+
     var googleSignInClient: GoogleSignInClient? = null
     private var drawerToggle: ActionBarDrawerToggle? = null
-    private val yourLunchFragment = YourLunchFragment()
     private val settingsFragment = SettingsFragment()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         this.supportActionBar?.hide()
-        searchView.layoutParams = androidx.appcompat.widget.Toolbar.LayoutParams(Gravity.RIGHT)
-        searchView.maxWidth = Int.MAX_VALUE
+        setUpSearchView()
+
         val mapFragment = MapFragment()
 
         makeCurrentFragment(mapFragment)
@@ -56,7 +55,6 @@ class MainActivity : AppCompatActivity() {
             userEmailTextview.text = ""
         }
 
-
         Glide.with(currentUserImageView)
             .load(FirebaseAuth.getInstance().currentUser?.photoUrl)
             .centerCrop()
@@ -64,13 +62,29 @@ class MainActivity : AppCompatActivity() {
             .placeholder(R.drawable.default_colleague_icon)
             .error(R.drawable.default_colleague_icon)
             .into(currentUserImageView)
-
-        Log.d("TAGImage", FirebaseAuth.getInstance().currentUser?.photoUrl.toString())
     }
 
     fun update(view: View) {
         when (view.id) {
-            R.id.yourLunchButton -> makeCurrentFragment(yourLunchFragment)
+            R.id.yourLunchButton -> {
+                val restaurantReference = firestore.collection("users")
+                    .document(FirebaseAuth.getInstance().currentUser?.displayName.toString())
+                restaurantReference.get().addOnSuccessListener { document ->
+                    if (!document["userRestaurant"].toString().contains("undecided")) {
+                        val data = document["userRestaurantData"].toString()
+                        val intent = Intent(this, RestaurantDetailsActivity::class.java)
+                        intent.putExtra("restaurantDataFromNavDrawerClick", data)
+                        startActivity(intent)
+                    } else if (document["userRestaurant"].toString().contains("undecided")) {
+                        Toast.makeText(
+                            this,
+                            "You haven't decided on a restaurant yet!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
+            }
             R.id.settingsButton -> makeCurrentFragment(settingsFragment)
             R.id.logoutButton -> {
                 lifecycleScope.launch(IO) {
@@ -130,6 +144,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setUpSearchView() {
+        searchView.layoutParams = androidx.appcompat.widget.Toolbar.LayoutParams(Gravity.RIGHT)
+        searchView.maxWidth = Int.MAX_VALUE
+        searchView.setOnSearchClickListener {
+            if (searchView.hasFocus()) {
+                toolbarTitle.visibility = View.GONE
+            }
+        }
+        searchView.setOnCloseListener {
+            toolbarTitle.visibility = View.VISIBLE
+            false
+        }
+    }
 
 }
 

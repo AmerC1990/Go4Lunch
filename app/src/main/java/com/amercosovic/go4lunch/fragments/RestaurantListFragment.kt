@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.adapters.RestaurantListAdapter
-import com.amercosovic.go4lunch.viewmodels.MapFragmentViewModel
+import com.amercosovic.go4lunch.viewmodels.RestaurantsViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_restaurantlist.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 class RestaurantListFragment : BaseFragment() {
 
-    private var viewModel = MapFragmentViewModel()
+    private var viewModel = RestaurantsViewModel()
     lateinit var recyclerViewAdapter: RestaurantListAdapter
 
     override fun onCreateView(
@@ -79,7 +79,7 @@ class RestaurantListFragment : BaseFragment() {
         val getLocation = checkPermissionAndGetLocation()
         getLocation?.addOnSuccessListener { location: Location? ->
             if (location != null) {
-                viewModel.makeApiCall(
+                viewModel.fetchNearbyPlacesData(
                     location.latitude.toString(),
                     location.longitude.toString()
                 )

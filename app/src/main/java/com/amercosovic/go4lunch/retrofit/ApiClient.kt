@@ -6,7 +6,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
+//https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJY31kehwbU4gRxuEGnqSlHyY&fields=name,website,formatted_phone_number&key=AIzaSyB4g9Ihjg2bJrUIsCOWI9D0ZdNL5fwEPLw
 object ApiClient {
     var BASE_URL: String = "https://maps.googleapis.com/maps/api/"
     val getClient: ApiInterface
@@ -26,7 +26,5 @@ object ApiClient {
                 .build()
 
             return retrofit.create(ApiInterface::class.java)
-
-
         }
 }

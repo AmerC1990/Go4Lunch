@@ -46,19 +46,24 @@ class AllUsersAdapter(
                 .load(model.userImage.toString())
                 .centerCrop()
                 .circleCrop()
-                .placeholder(R.drawable.default_colleague_icon)
-                .error(R.drawable.default_colleague_icon)
+                .placeholder(R.drawable.defaultprofilepicture)
+                .error(R.drawable.defaultprofilepicture)
                 .into(holder.userProfilePic)
         } else if (!model.userRestaurant.toString().contains("undecided")) {
             holder.userName.text = model.userName.toString()
                 .substringBefore(" ") + " is eating at " + model.userRestaurant.toString()
+            holder.userName.textSize = 16F
+            val myCustomFont: Typeface? =
+                ResourcesCompat.getFont(holder.itemView.context, R.font.catamaran_bold)
+            holder.userName.setTypeface(myCustomFont, Typeface.BOLD)
+            holder.userName.setTextColor(Color.parseColor("#070606"))
 
             Glide.with(holder.userProfilePic)
                 .load(model.userImage.toString())
                 .centerCrop()
                 .circleCrop()
-                .placeholder(R.drawable.default_colleague_icon)
-                .error(R.drawable.default_colleague_icon)
+                .placeholder(R.drawable.defaultprofilepicture)
+                .error(R.drawable.defaultprofilepicture)
                 .into(holder.userProfilePic)
         }
 

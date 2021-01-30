@@ -6,6 +6,17 @@
         <item name="colorPrimaryDark">#FF71E3B1</item>
         <item name="colorAccent">#353737</item>
     </style>
+
+    <style name="AppThemeForRestaurantDetailsActivity" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#94E8C3</item>
+        <item name="colorPrimaryDark">#FF71E3B1</item>
+        <item name="colorAccent">#353737</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+
     <style name="MyToolbarTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#D12B2B</item>

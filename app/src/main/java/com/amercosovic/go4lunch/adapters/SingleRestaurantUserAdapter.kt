@@ -31,8 +31,8 @@ class SingleRestaurantUserAdapter(
             .load(model.userImage.toString())
             .centerCrop()
             .circleCrop()
-            .placeholder(R.drawable.default_colleague_icon)
-            .error(R.drawable.default_colleague_icon)
+            .placeholder(R.drawable.defaultprofilepicture)
+            .error(R.drawable.defaultprofilepicture)
             .into(holder.userProfilePic)
     }
 

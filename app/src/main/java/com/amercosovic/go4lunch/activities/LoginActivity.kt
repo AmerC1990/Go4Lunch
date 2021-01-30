@@ -1,14 +1,14 @@
 package com.amercosovic.go4lunch.activities
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.R
 import com.facebook.CallbackManager
@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_restaurant_details.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -35,10 +36,11 @@ import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
 
-    val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     var googleSignInClient: GoogleSignInClient? = null
     var SIGN_IN_REQUESTCODE = 1000
     private var callbackManager = CallbackManager.Factory.create()
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,12 +50,55 @@ class LoginActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+        clearInputs()
 
-        val sharedPrefs = getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
-        val editor = sharedPrefs.edit()
-        editor.clear()
-        editor.apply()
         val animation = AnimationUtils.loadAnimation(this, R.anim.scale_up)
+
+
+        registerButton.setOnClickListener {
+            registerButton.startAnimation(animation)
+            val userName = editTextUsername.text.toString()
+            val email = editTextEmailAddress.text.toString()
+            val password = editTextPassword.text.toString()
+
+            when {
+                (!userName.isNullOrEmpty() && !email.isNullOrEmpty() && !password.isNullOrEmpty()) -> {
+                    registerUser(email = email, userName = userName, password = password)
+                }
+            }
+            when {
+                (editTextUsername.visibility == View.VISIBLE && userName.isNullOrEmpty() ||
+                        editTextUsername.visibility == View.VISIBLE && email.isNullOrEmpty() ||
+                        editTextUsername.visibility == View.VISIBLE && password.isNullOrEmpty()) -> {
+                    Toast.makeText(
+                        this,
+                        "Please complete missing fields to create account",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+            when {
+                (editTextUsername.visibility == View.GONE) -> {
+                    editTextUsername.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        loginButton.setOnClickListener {
+            loginButton.startAnimation(animation)
+            val email = editTextEmailAddress.text.toString()
+            val password = editTextPassword.text.toString()
+
+            if (!email.isNullOrEmpty() && !password.isNullOrEmpty()) {
+                signIn(email = email, password = password)
+            } else {
+                Toast.makeText(
+                    this,
+                    "Please complete missing fields to create account",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
 
         googleLoginButton.setOnClickListener {
             googleLoginButton.startAnimation(animation)
@@ -170,7 +215,16 @@ class LoginActivity : AppCompatActivity() {
 
     private fun addFirestoreDocIfDoesntExist() {
         val userName: String = FirebaseAuth.getInstance().currentUser?.displayName.toString()
-        val docRef = db.collection("users").document(userName)
+        val docRef = firestore.collection("users").document(userName)
+        docRef.get().addOnSuccessListener { document ->
+            if (document?.data.isNullOrEmpty()) {
+                addUserToFireStore(userName)
+            }
+        }
+    }
+
+    private fun addUserFromEmailAndPasswordLogin(userName: String) {
+        val docRef = firestore.collection("users").document(userName)
         docRef.get().addOnSuccessListener { document ->
             if (document?.data.isNullOrEmpty()) {
                 addUserToFireStore(userName)
@@ -185,11 +239,74 @@ class LoginActivity : AppCompatActivity() {
             "userRestaurant" to "undecided"
         )
 
-        db.collection("users").document(userName)
+        firestore.collection("users").document(userName)
             .set(user as Map<String, Any>).addOnSuccessListener { documentReference ->
             }
             .addOnFailureListener { exception ->
                 Log.e("Error", exception.message)
             }
+    }
+
+    private fun registerUser(userName: String, email: String, password: String) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+            when {
+                it.isSuccessful -> {
+                    val sharedPrefs = this.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+                    val editor = sharedPrefs.edit()
+                    editor.apply {
+                        putString(email, userName)
+                    }.apply()
+                    Toast.makeText(this, "User Registration success", Toast.LENGTH_LONG).show()
+                    clearInputs()
+                    editTextUsername.visibility = View.GONE
+                    Log.d(
+                        "theCurrentUserEmail",
+                        FirebaseAuth.getInstance().currentUser?.email.toString()
+                    )
+
+                }
+                else -> {
+                    Toast.makeText(this, "User Registration failed", Toast.LENGTH_LONG).show()
+                }
+            }
+
+        }
+    }
+
+    private fun signIn(email: String, password: String) {
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+            when {
+                it.isSuccessful -> {
+                    Toast.makeText(this, "User Login success", Toast.LENGTH_LONG).show()
+                    val sharedPrefs = this.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+                    val userName = sharedPrefs.getString(email, null)
+                    if (userName != null) {
+                        addUserFromEmailAndPasswordLogin(userName)
+                        val editor = sharedPrefs.edit()
+                        editor.apply {
+                            putString(email, userName)
+                        }.apply()
+                    }
+                    Log.d(
+                        "theCurrentUserEmail",
+                        FirebaseAuth.getInstance().currentUser?.email.toString()
+                    )
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    overridePendingTransition(
+                        R.anim.slide_out_down,
+                        R.anim.slide_in_down
+                    )
+                    startActivity(intent)
+                }
+                else -> {
+                    Toast.makeText(this, "User Login failed", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun clearInputs() {
+        editTextUsername.text.clear()
+        editTextPassword.text.clear()
     }
 }

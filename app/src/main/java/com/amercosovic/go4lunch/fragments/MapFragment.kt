@@ -23,7 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.activities.RestaurantDetailsActivity
-import com.amercosovic.go4lunch.viewmodels.MapFragmentViewModel
+import com.amercosovic.go4lunch.viewmodels.RestaurantsViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -42,7 +42,7 @@ import kotlinx.coroutines.withContext
 class MapFragment : BaseFragment(), OnMapReadyCallback {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private var viewModel = MapFragmentViewModel()
+    private var viewModel = RestaurantsViewModel()
     private lateinit var map: GoogleMap
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val INTERVAL: Long = 10000
@@ -63,7 +63,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         locationRequest = LocationRequest()
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        viewModel = ViewModelProvider(this).get(MapFragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(RestaurantsViewModel::class.java)
         isLocationOn()
     }
 
@@ -169,7 +169,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                         ), 15f
                     )
                 )
-                viewModel.makeApiCall(
+                viewModel.fetchNearbyPlacesData(
                     location.latitude.toString(),
                     location.longitude.toString()
                 )
@@ -265,7 +265,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                 ), 15f
             )
         )
-        viewModel.makeApiCall(location.latitude.toString(), location.longitude.toString())
+        viewModel.fetchNearbyPlacesData(location.latitude.toString(), location.longitude.toString())
     }
 
     private val locationCallback = object : LocationCallback() {

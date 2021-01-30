@@ -19,7 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            android:minHeight="?android:attr/actionBarSize">
+            android:minHeight="?android:attr/actionBarSize"
+            android:paddingBottom="5dp">
 
             <TextView
                 android:id="@+id/toolbarTitle"
@@ -41,21 +42,22 @@
         <FrameLayout
             android:id="@+id/fragmentContainer"
             android:layout_width="match_parent"
-            android:layout_height="560dp"
-            android:background="@android:color/white">
-        </FrameLayout>
+            android:layout_height="match_parent"
+            android:layout_marginBottom="48dp"
+            android:background="@android:color/white"></FrameLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="0dp"
-            android:paddingBottom="0dp"
             android:background="@color/colorPrimary"
             app:itemBackground="@color/colorPrimary"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
             app:itemIconTint="#000000"
             app:itemTextColor="#000000"
-            app:menu="@menu/nav_menu" />
+            app:menu="@menu/nav_menu"
+            android:layout_marginTop="-48dp" />
     </LinearLayout>
 
 
@@ -188,7 +190,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.254"
-            app:srcCompat="@drawable/default_colleague_icon" />
+            app:srcCompat="@drawable/defaultprofilepicture" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.969"
+            app:srcCompat="@drawable/loginactivitylogo" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

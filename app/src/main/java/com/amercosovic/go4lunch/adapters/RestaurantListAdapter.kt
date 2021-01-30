@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.fragment_restaurantlist_row.view.*
 class RestaurantListAdapter(private val latitude: String, private val longitude: String) :
     RecyclerView.Adapter<RestaurantListAdapter.ViewHolder>() {
 
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     var items: List<Restaurant> = ArrayList()
 
     fun setListData(data: List<Restaurant>) {
@@ -118,7 +118,7 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
                 .into(holder.imageOfRestaurant)
         }
 
-        val userRef = db.collection(restaurantName)
+        val userRef = firestore.collection(restaurantName)
         userRef.get().addOnSuccessListener { snapshot ->
             userRef.document("count").get().addOnSuccessListener { documentSnapshot ->
                 if (!documentSnapshot["count"].toString()

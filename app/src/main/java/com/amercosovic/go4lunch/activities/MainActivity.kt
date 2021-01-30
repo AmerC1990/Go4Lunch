@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private val settingsFragment = SettingsFragment()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -48,7 +49,18 @@ class MainActivity : AppCompatActivity() {
         setupNavDrawer()
         setUpBottomNavClicks()
 
-        usernameTextview.text = FirebaseAuth.getInstance().currentUser?.displayName
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
+        val sharedPrefs = this.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+        val currentUserName = sharedPrefs.getString(currentUserEmail, null)
+
+        if (!FirebaseAuth.getInstance().currentUser?.displayName.isNullOrEmpty() &&
+            !FirebaseAuth.getInstance().currentUser?.displayName.toString().contains("null")
+        ) {
+            usernameTextview.text = FirebaseAuth.getInstance().currentUser?.displayName
+        } else if (currentUserName != null) {
+            usernameTextview.text = currentUserName.toString()
+        }
+
         if (!FirebaseAuth.getInstance().currentUser?.email.toString().isNullOrEmpty()) {
             userEmailTextview.text = FirebaseAuth.getInstance().currentUser?.email
         } else {
@@ -59,8 +71,8 @@ class MainActivity : AppCompatActivity() {
             .load(FirebaseAuth.getInstance().currentUser?.photoUrl)
             .centerCrop()
             .circleCrop()
-            .placeholder(R.drawable.default_colleague_icon)
-            .error(R.drawable.default_colleague_icon)
+            .placeholder(R.drawable.defaultprofilepicture)
+            .error(R.drawable.defaultprofilepicture)
             .into(currentUserImageView)
     }
 
@@ -118,6 +130,11 @@ class MainActivity : AppCompatActivity() {
         FirebaseAuth.getInstance().signOut()
         LoginManager.getInstance().logOut()
         googleSignInClient?.signOut()
+        val sharedPrefs = this.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        editor.apply {
+            remove(FirebaseAuth.getInstance().currentUser?.email.toString())
+        }.apply()
     }
 
     private fun setupNavDrawer() {
@@ -157,6 +174,5 @@ class MainActivity : AppCompatActivity() {
             false
         }
     }
-
 }
 

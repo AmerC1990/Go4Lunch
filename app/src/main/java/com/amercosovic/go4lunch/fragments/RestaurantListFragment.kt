@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.fragment_restaurantlist.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 class RestaurantListFragment : BaseFragment() {
@@ -35,6 +36,7 @@ class RestaurantListFragment : BaseFragment() {
         return inflater.inflate(R.layout.fragment_restaurantlist, container, false)
     }
 
+    // get user's location and attach observers
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         isLocationOn()
@@ -42,7 +44,11 @@ class RestaurantListFragment : BaseFragment() {
             getLocationAccess()
         }
         attachObservers()
+        // set up searchview and implement search/filter functionality
         val searchView = activity?.searchView
+        searchView?.visibility = View.VISIBLE
+        searchView?.queryHint =
+            translate(english = "Search restaurants", spanish = "Buscar restaurantes")
 
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -67,7 +73,7 @@ class RestaurantListFragment : BaseFragment() {
                         }
                     }
                 } else {
-//                    Toast.makeText(requireContext(), "Failed to update List", Toast.LENGTH_LONG).show()
+
                 }
                 return false
             }
@@ -75,6 +81,7 @@ class RestaurantListFragment : BaseFragment() {
 
     }
 
+    // get user's location
     private fun getLocationAccess() {
         val getLocation = checkPermissionAndGetLocation()
         getLocation?.addOnSuccessListener { location: Location? ->
@@ -94,6 +101,7 @@ class RestaurantListFragment : BaseFragment() {
         }
     }
 
+    // initialize recyclerview
     private fun initRecyclerView(latitude: String, longitude: String) {
         restaurantListRecyclerView.apply {
             recyclerViewAdapter = RestaurantListAdapter(latitude, longitude)
@@ -104,6 +112,7 @@ class RestaurantListFragment : BaseFragment() {
         }
     }
 
+    // attach live data observers for restaurant data to populate recycler view
     private fun attachObservers() {
         viewModel.state.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
@@ -121,6 +130,17 @@ class RestaurantListFragment : BaseFragment() {
                 }
             }
         })
+    }
+
+    // translate
+    private fun translate(spanish: String, english: String): String {
+        val language = Locale.getDefault().displayLanguage
+
+        return if (language.toString() == "español") {
+            return spanish
+        } else {
+            return english
+        }
     }
 }
 

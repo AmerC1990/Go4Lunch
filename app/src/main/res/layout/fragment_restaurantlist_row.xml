@@ -60,7 +60,7 @@
         android:layout_marginStart="7dp"
         android:layout_marginTop="73dp"
         android:layout_marginBottom="9dp"
-        android:text="Open until 7pm"
+        android:text="@string/open_until_7pm"
         android:textColor="#2F353A"
         android:textSize="13sp"
         android:textStyle="italic" />
@@ -74,7 +74,7 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="9dp"
         android:layout_marginTop="37dp"
-        android:text="Type - Address"
+        android:text="@string/restaurant_address"
         android:textColor="#2F353A"
         android:textSize="13sp" />
 
@@ -99,7 +99,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="7dp"
         android:layout_marginTop="7dp"
-        android:text="Name of Restaurant"
+        android:text="@string/name"
         android:textColor="#000000"
         android:textSize="16sp"
         android:textStyle="bold" />

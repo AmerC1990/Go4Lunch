@@ -10,12 +10,14 @@ import android.location.LocationManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.amercosovic.go4lunch.R
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
 
 open class BaseFragment : Fragment() {
 
+    // check permission and get location
     fun checkPermissionAndGetLocation(): Task<Location>? {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -32,12 +34,13 @@ open class BaseFragment : Fragment() {
         return null
     }
 
+    // check is location on
     fun isLocationOn() {
         val locationManager =
             requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             val builder = AlertDialog.Builder(requireContext())
-            builder.setMessage("Your location is disabled, do you want to enable it?")
+            builder.setMessage(R.string.location_disabled_message.toString())
                 .setCancelable(false)
                 .setPositiveButton("Yes") { dialog, id ->
                     startActivityForResult(

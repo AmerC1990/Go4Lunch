@@ -8,6 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 //https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJY31kehwbU4gRxuEGnqSlHyY&fields=name,website,formatted_phone_number&key=AIzaSyB4g9Ihjg2bJrUIsCOWI9D0ZdNL5fwEPLw
 object ApiClient {
+    // create retrofit
     var BASE_URL: String = "https://maps.googleapis.com/maps/api/"
     val getClient: ApiInterface
         get() {

@@ -39,4 +39,12 @@
 
     </style>
 
+    <style name="PrimaryColorTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#94E8C3</item>
+
+        <!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+
+    </style>
+
 </resources>

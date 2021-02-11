@@ -12,9 +12,11 @@ import kotlinx.coroutines.launch
 
 class RestaurantsViewModel : ViewModel() {
 
+    // initialize mutable livedata objects
     val state: MutableLiveData<NearbyPlacesState> = MutableLiveData()
     val state2: MutableLiveData<PlaceDetailsState> = MutableLiveData()
 
+    // get data for nearby restaurants
     fun fetchNearbyPlacesData(latitude: String, longitude: String) {
         state.value = NearbyPlacesState.Loading
         viewModelScope.launch(IO) {
@@ -32,6 +34,7 @@ class RestaurantsViewModel : ViewModel() {
         }
     }
 
+    // get data for phone number and website url of a particular restaurant
     fun fetchWebsiteAndPhoneNumberData(data: String) {
         state2.value = PlaceDetailsState.Loading
         viewModelScope.launch(IO) {

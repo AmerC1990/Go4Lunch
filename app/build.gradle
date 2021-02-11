@@ -30,7 +30,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.21"
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
@@ -45,7 +45,7 @@ dependencies {
     // Also declare the dependency for the Google Play services library and specify its version
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.google.firebase:firebase-auth:20.0.1'
+    implementation 'com.google.firebase:firebase-auth:20.0.2'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.libraries.places:places:2.4.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -58,20 +58,16 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth'
 
     // Also declare the dependency for the Google Play services library and specify its version
-    implementation 'com.google.android.gms:play-services-auth:19.0.0'
-    implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.google.firebase:firebase-auth:20.0.1'
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.google.firebase:firebase-firestore:22.0.1'
+    implementation 'com.google.firebase:firebase-firestore:22.0.2'
     implementation 'com.google.firebase:firebase-messaging:21.0.1'
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.facebook.android:facebook-android-sdk:5.15.3'
     implementation 'com.google.android.material:material:1.2.1'
-    implementation 'com.google.android.material:material:1.3.0-beta01'
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5"
+    implementation 'com.google.android.material:material:1.3.0-rc01'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1"
     implementation 'com.google.android.gms:play-services-location:17.1.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation  'com.github.thekhaeng:pushdown-anim-click:1.1.1'
@@ -79,8 +75,6 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5"
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
     implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
@@ -89,10 +83,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     // For control over item selection of both touch and mouse driven selection
-    implementation "androidx.recyclerview:recyclerview-selection:1.1.0-rc03"
+    implementation "androidx.recyclerview:recyclerview-selection:1.1.0"
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    implementation 'com.google.android.material:material:1.2.1'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
     implementation 'com.tapadoo.android:alerter:6.1.0'
@@ -111,9 +104,8 @@ dependencies {
     implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-experimental-adapter:1.0.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     implementation 'com.google.maps.android:android-maps-utils:0.6.2'
-    implementation 'com.google.firebase:firebase-firestore:22.0.1'
     implementation 'com.firebaseui:firebase-ui-firestore:6.2.1'
     implementation 'com.google.firebase:firebase-messaging-ktx:21.0.1'
-    implementation 'androidx.fragment:fragment-ktx:1.3.0-rc01'
-    implementation 'com.google.android.gms:play-services-basement:17.5.0'
+    implementation 'androidx.fragment:fragment-ktx:1.3.0-rc02'
+    implementation 'com.google.android.gms:play-services-basement:17.6.0'
 }

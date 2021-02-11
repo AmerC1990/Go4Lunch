@@ -13,7 +13,9 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_workmates.*
+import java.util.*
 
 class WorkmatesFragment : BaseFragment() {
 
@@ -29,6 +31,15 @@ class WorkmatesFragment : BaseFragment() {
         return inflater.inflate(R.layout.fragment_workmates, container, false)
     }
 
+    // set up searchview
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        val searchView = activity?.searchView
+        searchView?.visibility = View.VISIBLE
+        searchView?.queryHint =
+            translate(english = "Search workmates", spanish = " Buscar compañeras")
+    }
+
 
     override fun onStart() {
         super.onStart()
@@ -41,6 +52,7 @@ class WorkmatesFragment : BaseFragment() {
         adapter?.stopListening()
     }
 
+    // initialize recyclerview
     private fun initRecyclerView() {
         val query: Query = collectionReference
 
@@ -55,6 +67,17 @@ class WorkmatesFragment : BaseFragment() {
         workmatesFragmentRecyclerView.adapter = adapter
         workmatesFragmentRecyclerView.addItemDecoration(decoration)
         adapter?.notifyDataSetChanged()
+    }
+
+    // translate
+    private fun translate(spanish: String, english: String): String {
+        val language = Locale.getDefault().displayLanguage
+
+        return if (language.toString() == "español") {
+            return spanish
+        } else {
+            return english
+        }
     }
 }
 

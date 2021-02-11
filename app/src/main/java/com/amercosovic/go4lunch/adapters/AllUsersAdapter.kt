@@ -3,7 +3,6 @@ package com.amercosovic.go4lunch.adapters
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +16,7 @@ import com.bumptech.glide.Glide
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import kotlinx.android.synthetic.main.single_restaurant_user_row.view.*
+import java.util.*
 
 class AllUsersAdapter(
     options: FirestoreRecyclerOptions<Users>
@@ -33,9 +33,12 @@ class AllUsersAdapter(
 
 
     override fun onBindViewHolder(holder: UserAdapterVH, position: Int, model: Users) {
-
+        // bind data
         if (model.userRestaurant.toString().contains("undecided")) {
-            holder.userName.text = model.userName.toString() + " hasn't decided yet"
+            holder.userName.text = model.userName.toString() + translate(
+                english = " hasn't decided yet",
+                spanish = " no ha decidido todavía"
+            )
             holder.userName.textSize = 16F
             val myCustomFont: Typeface? =
                 ResourcesCompat.getFont(holder.itemView.context, R.font.catamaran_bold)
@@ -51,7 +54,10 @@ class AllUsersAdapter(
                 .into(holder.userProfilePic)
         } else if (!model.userRestaurant.toString().contains("undecided")) {
             holder.userName.text = model.userName.toString()
-                .substringBefore(" ") + " is eating at " + model.userRestaurant.toString()
+                .substringBefore(" ") + translate(
+                english = " is eating at ",
+                spanish = " está comiendo en "
+            ) + model.userRestaurant.toString()
             holder.userName.textSize = 16F
             val myCustomFont: Typeface? =
                 ResourcesCompat.getFont(holder.itemView.context, R.font.catamaran_bold)
@@ -66,18 +72,22 @@ class AllUsersAdapter(
                 .error(R.drawable.defaultprofilepicture)
                 .into(holder.userProfilePic)
         }
-
+        // set up on click listener and open new activity while passing data to it for particular restaurant
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, RestaurantDetailsActivity::class.java)
             if (model.userRestaurant.toString().contains("undecided")) {
                 Toast.makeText(
                     holder.itemView.context,
-                    "${model.userName} is undecided on a restaurant",
+                    "${model.userName} ${
+                        translate(
+                            english = "hasn't decided on a restaurant yet!",
+                            spanish = "Está indecisa en un restaurante"
+                        )
+                    }",
                     Toast.LENGTH_LONG
                 ).show()
             } else if (model.userRestaurantData?.isNullOrEmpty() == false) {
                 intent.putExtra("userRestaurantData", model.userRestaurantData)
-                Log.d("userRestaurantData", model.userRestaurantData)
                 holder.itemView.context.startActivity(intent)
             }
 
@@ -87,5 +97,16 @@ class AllUsersAdapter(
     class UserAdapterVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var userName = itemView.usernameTextView
         var userProfilePic = itemView.userProfilePicImageView
+    }
+
+    // translate
+    private fun translate(spanish: String, english: String): String {
+        val language = Locale.getDefault().displayLanguage
+
+        return if (language.toString() == "español") {
+            return spanish
+        } else {
+            return english
+        }
     }
 }

@@ -1,6 +1,9 @@
 package com.amercosovic.go4lunch.activities
 
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.R
+import com.amercosovic.go4lunch.receiver.AlarmReceiver
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -33,6 +37,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 
 class LoginActivity : AppCompatActivity() {
 
@@ -41,20 +46,25 @@ class LoginActivity : AppCompatActivity() {
     var SIGN_IN_REQUESTCODE = 1000
     private var callbackManager = CallbackManager.Factory.create()
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private lateinit var alarmManager: AlarmManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        // hide action bar
         this.supportActionBar?.hide()
         this.window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+        // logout, cancel alarms, clear inputs of sign in edit texts
+        logout()
+        cancelAlarm()
         clearInputs()
 
         val animation = AnimationUtils.loadAnimation(this, R.anim.scale_up)
 
-
+        // create new user account
         registerButton.setOnClickListener {
             registerButton.startAnimation(animation)
             val userName = editTextUsername.text.toString()
@@ -72,7 +82,10 @@ class LoginActivity : AppCompatActivity() {
                         editTextUsername.visibility == View.VISIBLE && password.isNullOrEmpty()) -> {
                     Toast.makeText(
                         this,
-                        "Please complete missing fields to create account",
+                        translate(
+                            english = "Please complete missing fields to create account",
+                            spanish = "Complete los campos que faltan para crear una cuenta"
+                        ),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -84,6 +97,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        //login user
         loginButton.setOnClickListener {
             loginButton.startAnimation(animation)
             val email = editTextEmailAddress.text.toString()
@@ -94,12 +108,16 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(
                     this,
-                    "Please complete missing fields to create account",
+                    translate(
+                        english = "Please complete missing fields to create account",
+                        spanish = "Complete los campos que faltan para crear una cuenta"
+                    ),
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
 
+        // login with google
         googleLoginButton.setOnClickListener {
             googleLoginButton.startAnimation(animation)
             lifecycleScope.launch(IO) {
@@ -107,6 +125,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        // login with facebook
         facebookLoginButton.setOnClickListener {
             facebookLoginButton.startAnimation(animation)
             lifecycleScope.launch(IO) {
@@ -115,6 +134,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // google login
     private suspend fun googleLogin() {
         lifecycleScope.launch(IO) {
             val googleSignIn = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -129,6 +149,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    //facebook login
     private suspend fun facebookLogin() {
         val loginManager = LoginManager.getInstance()
         loginManager.apply {
@@ -151,6 +172,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // authentication facebook login with firebase
     private suspend fun firebaseAuthFacebook(result: LoginResult?) {
         lifecycleScope.launch(IO) {
             val credential =
@@ -162,6 +184,7 @@ class LoginActivity : AppCompatActivity() {
                             if (task.isSuccessful) {
                                 addFirestoreDocIfDoesntExist()
                                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                                intent.putExtra("FromLoginPage", "FromLoginPage")
                                 overridePendingTransition(
                                     R.anim.slide_out_down,
                                     R.anim.slide_in_down
@@ -176,6 +199,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // authenticate google login with firebase
     private suspend fun firebaseAuthWithGoogle(acct: GoogleSignInAccount?) {
         lifecycleScope.launch(IO) {
             val credential = GoogleAuthProvider.getCredential(acct?.idToken, null)
@@ -185,6 +209,7 @@ class LoginActivity : AppCompatActivity() {
                         if (task.isSuccessful) {
                             addFirestoreDocIfDoesntExist()
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                            intent.putExtra("FromLoginPage", "FromLoginPage")
                             overridePendingTransition(R.anim.slide_out_down, R.anim.slide_in_down)
                             startActivity(intent)
                         }
@@ -193,6 +218,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // get result after login
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         callbackManager.onActivityResult(requestCode, resultCode, data)
@@ -205,6 +231,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // get google account after login
     private suspend fun getGoogleAccountAfterResult(data: Intent?) {
         lifecycleScope.launch(IO) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -213,6 +240,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // check if user exists ,add user to firestore from google or facebook login
     private fun addFirestoreDocIfDoesntExist() {
         val userName: String = FirebaseAuth.getInstance().currentUser?.displayName.toString()
         val docRef = firestore.collection("users").document(userName)
@@ -223,6 +251,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // check if user exists ,add user to firestore from email and password login
     private fun addUserFromEmailAndPasswordLogin(userName: String) {
         val docRef = firestore.collection("users").document(userName)
         docRef.get().addOnSuccessListener { document ->
@@ -232,6 +261,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // add user to firestore
     private fun addUserToFireStore(userName: String) {
         val user = hashMapOf(
             "userName" to userName,
@@ -247,6 +277,7 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
+    // register user
     private fun registerUser(userName: String, email: String, password: String) {
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
             when {
@@ -256,28 +287,47 @@ class LoginActivity : AppCompatActivity() {
                     editor.apply {
                         putString(email, userName)
                     }.apply()
-                    Toast.makeText(this, "User Registration success", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        translate(
+                            english = "User Registration successful",
+                            spanish = "Registro de usuario exitosa"
+                        ),
+                        Toast.LENGTH_LONG
+                    ).show()
                     clearInputs()
                     editTextUsername.visibility = View.GONE
                     Log.d(
                         "theCurrentUserEmail",
                         FirebaseAuth.getInstance().currentUser?.email.toString()
                     )
-
                 }
                 else -> {
-                    Toast.makeText(this, "User Registration failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this, translate(
+                            english = "User Registration failed",
+                            spanish = "Error de registro de usuario"
+                        ), Toast.LENGTH_LONG
+                    ).show()
                 }
             }
 
         }
     }
 
+    // sign in with email and password
     private fun signIn(email: String, password: String) {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
             when {
                 it.isSuccessful -> {
-                    Toast.makeText(this, "User Login success", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        translate(
+                            english = "User Login success",
+                            spanish = "Inicio de sesión de usuario exitoso"
+                        ),
+                        Toast.LENGTH_LONG
+                    ).show()
                     val sharedPrefs = this.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
                     val userName = sharedPrefs.getString(email, null)
                     if (userName != null) {
@@ -287,11 +337,8 @@ class LoginActivity : AppCompatActivity() {
                             putString(email, userName)
                         }.apply()
                     }
-                    Log.d(
-                        "theCurrentUserEmail",
-                        FirebaseAuth.getInstance().currentUser?.email.toString()
-                    )
                     val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    intent.putExtra("FromLoginPage", "FromLoginPage")
                     overridePendingTransition(
                         R.anim.slide_out_down,
                         R.anim.slide_in_down
@@ -299,14 +346,61 @@ class LoginActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 else -> {
-                    Toast.makeText(this, "User Login failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        translate(
+                            english = "User Login failed",
+                            spanish = "Error de inicio de sesión de usuario"
+                        ),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
     }
 
+    // clear username and password edit text inputs
     private fun clearInputs() {
         editTextUsername.text.clear()
         editTextPassword.text.clear()
     }
+
+    // logout
+    private fun logout() {
+        val googleSignIn = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this@LoginActivity, googleSignIn)
+        FirebaseAuth.getInstance().signOut()
+        LoginManager.getInstance().logOut()
+        googleSignInClient?.signOut()
+        val sharedPrefs = this.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        editor.apply {
+            remove(FirebaseAuth.getInstance().currentUser?.email.toString())
+        }.apply()
+    }
+
+    // cancel alarm
+    private fun cancelAlarm() {
+        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, AlarmReceiver::class.java)
+        val pendingIntent =
+            PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        alarmManager.cancel(pendingIntent)
+        pendingIntent.cancel()
+    }
+
+    // translate to spanish
+    private fun translate(spanish: String, english: String): String {
+        val language = Locale.getDefault().displayLanguage
+
+        if (language.toString() == "español") {
+            return spanish
+        } else {
+            return english
+        }
+    }
+
 }

@@ -6,6 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface ApiInterface {
+    // functions with querys to make api call
     @GET("place/nearbysearch/json")
     suspend fun getNearbyPlaces(
         @Query("location") location: String,

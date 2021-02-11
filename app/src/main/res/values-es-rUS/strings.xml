@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Go4Lunch</string>
+    <string name="google_sign_in">" Inicia sesión con Google"</string>
+    <string name="fb_sign_in">" Iniciar sesión usando Facebook"</string>
+    <string name="denied_permission_string">" Se requiere permiso de ubicación para ver su ubicación, habilítelo en la configuración"</string>
+    <string name="edit_text_username">" Nombre de usuario"</string>
+    <string name="edit_text_password">" Contraseña"</string>
+    <string name="register_button">" Crear una cuenta"</string>
+    <string name="login_button">" Iniciar sesión"</string>
+    <string name="edit_text_emailaddress">Email</string>
+    <string name="address">" Habla a"</string>
+    <string name="location_disabled_message">" Tu ubicación está deshabilitada, ¿quieres habilitarla?"</string>
+    <string name="notifications_on">" Se han activado las notificaciones!"</string>
+    <string name="notifications_off">" Se han desactivado las notificaciones"</string>
+    <string name="notifications_on_off">Activar / desactivar notificaciones</string>
+    <string name="get_ready_for_lunch">Prepárate para el almuerzo!</string>
+    <string name="restaurant_address">" Dirección del restaurante"</string>
+    <string name="is_joining">"  se une!"</string>
+    <string name="user_name">" Nombre de usuario"</string>
+    <string name="user_email">" Email del usuario"</string>
+    <string name="your_lunch">" Tu almuerzo"</string>
+    <string name="settings">Configuraciones</string>
+    <string name="logout">" Cerrar sesión"</string>
+    <string name="name">" Nombre"</string>
+    <string name="call">LLAMADA</string>
+    <string name="open_until_7pm">Abierta hasta las 7pm</string>
+    <string name="like_restaurant">ME GUSTA</string>
+</resources>

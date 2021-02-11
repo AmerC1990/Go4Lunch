@@ -18,17 +18,18 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.maps.android.SphericalUtil.computeDistanceBetween
 import kotlinx.android.synthetic.main.fragment_restaurantlist_row.view.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class RestaurantListAdapter(private val latitude: String, private val longitude: String) :
     RecyclerView.Adapter<RestaurantListAdapter.ViewHolder>() {
-
+    // initialize firestore object
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     var items: List<Restaurant> = ArrayList()
 
     fun setListData(data: List<Restaurant>) {
         this.items = data
-        Log.d("searchViewData", data.toString())
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -39,6 +40,7 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
 
     override fun getItemCount() = items.size
 
+    // bind data
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val restaurantData = items[position]
 
@@ -53,14 +55,14 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
 
         holder.restaurantAddress.text =
             restaurantAddress?.substring(0, Math.min(restaurantAddress.length, 18))
-                ?: "Restaurant Address"
+                ?: R.string.restaurant_address.toString()
 
         if (restaurantData.openingHours?.openNow != null) {
             if (restaurantData.openingHours?.openNow.toString() == "true") {
-                holder.openUntil.text = "Open Now"
+                holder.openUntil.text = translate(english = "Open Now", spanish = "Abierta Ahora")
                 holder.openUntil.setTextColor(Color.GREEN)
             } else {
-                holder.openUntil.text = "Closed"
+                holder.openUntil.text = translate(english = "Closed", spanish = "Cerrada")
                 holder.openUntil.setTextColor(Color.RED)
             }
 
@@ -160,7 +162,17 @@ class RestaurantListAdapter(private val latitude: String, private val longitude:
         val rating3Star: ImageView = itemView.restaurantRatingIcon3
         val numberOfColleagues: TextView = itemView.numberOfColleaguesTextview
         val colleagueIcon: ImageView = itemView.defaultColleagueIcon
+    }
 
+    // translate
+    private fun translate(spanish: String, english: String): String {
+        val language = Locale.getDefault().displayLanguage
+
+        return if (language.toString() == "español") {
+            return spanish
+        } else {
+            return english
+        }
     }
 
 

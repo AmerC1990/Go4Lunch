@@ -40,7 +40,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".activities.MainActivity" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:windowSoftInputMode="adjustPan"></activity>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -65,6 +67,10 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".receiver.AlarmReceiver"
+            android:enabled="true" />
 
     </application>
 

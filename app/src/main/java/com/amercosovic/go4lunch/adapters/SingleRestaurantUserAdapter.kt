@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import kotlinx.android.synthetic.main.single_restaurant_user_row.view.*
+import java.util.*
 
 class SingleRestaurantUserAdapter(
     options: FirestoreRecyclerOptions<Users>
@@ -24,8 +25,10 @@ class SingleRestaurantUserAdapter(
         )
     }
 
+    // bind data
     override fun onBindViewHolder(holder: UserAdapterVH, position: Int, model: Users) {
-        holder.userName.text = model.userName.toString() + " is joining!"
+        holder.userName.text =
+            model.userName.toString() + translate(english = " is joining!", spanish = " se une")
 
         Glide.with(holder.userProfilePic)
             .load(model.userImage.toString())
@@ -39,5 +42,16 @@ class SingleRestaurantUserAdapter(
     class UserAdapterVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var userName = itemView.usernameTextView
         var userProfilePic = itemView.userProfilePicImageView
+    }
+
+    // translate
+    private fun translate(spanish: String, english: String): String {
+        val language = Locale.getDefault().displayLanguage
+
+        return if (language.toString() == "español") {
+            return spanish
+        } else {
+            return english
+        }
     }
 }

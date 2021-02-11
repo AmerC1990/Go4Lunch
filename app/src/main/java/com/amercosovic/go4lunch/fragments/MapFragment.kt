@@ -38,6 +38,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 
 class MapFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -55,6 +56,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // set up toolbar
+        val toolbarTitle = activity?.toolbarTitle
+        toolbarTitle?.text = translate(english = "       I'm Hungry", spanish = "     Tengo hambre")
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
 
@@ -64,9 +68,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         viewModel = ViewModelProvider(this).get(RestaurantsViewModel::class.java)
+        // check is turned on user's device
         isLocationOn()
     }
 
+    // prepare map and get location
     override fun onMapReady(googleMap: GoogleMap?) {
         if (googleMap != null) {
             map = googleMap
@@ -74,7 +80,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         lifecycleScope.launch(IO) {
             getLocationAccess()
         }
+        // implement filter/search funcionality with search view
         val searchView = activity?.searchView
+        searchView?.visibility = View.VISIBLE
+        searchView?.queryHint =
+            translate(english = "Search restaurants", spanish = "Buscar restaurantes")
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 return false
@@ -131,18 +141,20 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                         }
                     }
                 } else {
-//                    Toast.makeText(requireContext(), "Failed to update Map", Toast.LENGTH_LONG).show()
+
                 }
                 return false
             }
         })
     }
 
+    // attach observers on activity created
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         attachObservers()
     }
 
+    // get user's location
     private suspend fun getLocationAccess() {
         val getLocation = checkPermissionAndGetLocation()
         getLocation?.addOnSuccessListener { location: Location? ->
@@ -150,7 +162,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                 val position = LatLng(location.latitude, location.longitude)
                 map.addMarker(
                     position.let {
-                        MarkerOptions().position(it).title("My Location")
+                        MarkerOptions().position(it)
+                            .title(translate(english = "My Location", spanish = "Mi ubicacion"))
                             .icon(
                                 this.context?.let { it1 ->
                                     bitmapDescriptorFromVector(
@@ -189,6 +202,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    // create bitmap from drawable
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
         val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
         vectorDrawable?.setBounds(
@@ -211,6 +225,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
 
+    // start location updates
     private fun startLocationUpdates() {
         // Create the location request to start receiving updates
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -245,17 +260,19 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         )
     }
 
+    // update camera and marker when location changes
     private fun onLocationChanged(location: Location) {
         val position = LatLng(location.latitude, location.longitude)
         map.addMarker(
-            MarkerOptions().position(position).title("My Location").icon(
-                this.context?.let {
-                    bitmapDescriptorFromVector(
-                        it,
-                        R.drawable.custombluehomemarker
-                    )
-                }
-            )
+            MarkerOptions().position(position)
+                .title(translate(english = "My Location", spanish = "Mi ubicacion")).icon(
+                    this.context?.let {
+                        bitmapDescriptorFromVector(
+                            it,
+                            R.drawable.custombluehomemarker
+                        )
+                    }
+                )
         )
         map.moveCamera(
             CameraUpdateFactory.newLatLngZoom(
@@ -275,10 +292,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    // stop location updates
     private fun stopLocationUpdates() {
         fusedLocationProvider?.removeLocationUpdates(locationCallback)
     }
 
+    // attach observers to draw markers with data
     private fun attachObservers() {
         viewModel.state.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
@@ -319,7 +338,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
 
                         map.setOnMarkerClickListener { it ->
                             val markerName = it.title
-                            if (markerName.toString() == "My Location") {
+                            if (markerName.toString() == translate(
+                                    english = "My Location",
+                                    spanish = "Mi ubicacion"
+                                )
+                            ) {
                                 it.showInfoWindow()
                             } else {
                                 val intent =
@@ -360,6 +383,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         })
     }
 
+    // check permission
     private fun checkPermission(): Boolean {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -372,6 +396,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         return false
     }
 
+    // make map invisible and prompt user to give permission in order to use their location
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -401,6 +426,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+    // maintain marker color if user/coworkers have/have not visited restaurant
     private fun maintainMarkerColor(reference: CollectionReference, markerList: List<Marker>) {
         reference.addSnapshotListener { value, error ->
             for (marker in markerList) {
@@ -429,4 +455,16 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
             }
         }
     }
+
+    // translate
+    private fun translate(spanish: String, english: String): String {
+        val language = Locale.getDefault().displayLanguage
+
+        return if (language.toString() == "español") {
+            return spanish
+        } else {
+            return english
+        }
+    }
+
 }

@@ -12,8 +12,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.activities.RestaurantDetailsActivity
+import com.amercosovic.go4lunch.model.Restaurant
+import com.amercosovic.go4lunch.utility.RestaurantFromFirestore
+import com.amercosovic.go4lunch.utility.Translate.translate
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -39,7 +50,7 @@ class AlarmReceiver : BroadcastReceiver() {
         // 24 hours = 86400000 milliseconds
         // 15 seconds = 15000 milliseconds
         val myAlarm = AlarmManager.AlarmClockInfo(
-            System.currentTimeMillis() + 86400000,
+            System.currentTimeMillis() + 15000,
             pendingIntent2
         )
         alarmManager.setAlarmClock(myAlarm, pendingIntent)
@@ -75,48 +86,58 @@ class AlarmReceiver : BroadcastReceiver() {
                         }
                         val notificationIntent =
                             Intent(context, RestaurantDetailsActivity::class.java)
-                        notificationIntent.putExtra("restaurantDataFromNotification", data)
-                        val contentIntent = PendingIntent.getActivity(
-                            context, 0,
-                            notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
-                        )
-                        val builder = NotificationCompat.Builder(context, "lunch")
-                            .setSmallIcon(R.drawable.myicon)
-                            .setContentTitle(
-                                translate(
-                                    english = "Get ready for Lunch!",
-                                    spanish = "Prepárate para el almuerzo!"
+                        val mapper = jacksonObjectMapper()
+                        CoroutineScope(Default).launch {
+                            val restaurant = RestaurantFromFirestore.getRestaurant(data)
+                            withContext(Main) {
+                                notificationIntent.putExtra(
+                                    "restaurantDataFromNotification",
+                                    restaurant
                                 )
-                            )
-                            .setStyle(
-                                NotificationCompat.BigTextStyle()
-                                    .bigText(
-                                        "${
-                                            translate(
-                                                english = "Today, you're eating lunch at",
-                                                spanish = "Hoy vas a almorzar en"
-                                            )
-                                        } $nameOfRestaurant - $addressOfRestaurant" +
+                                val contentIntent = PendingIntent.getActivity(
+                                    context, 0,
+                                    notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
+                                )
+                                val builder = NotificationCompat.Builder(context, "lunch")
+                                    .setSmallIcon(R.drawable.myicon)
+                                    .setContentTitle(
+                                        translate(
+                                            english = "Get ready for Lunch!",
+                                            spanish = "Prepárate para el almuerzo!"
+                                        )
+                                    )
+                                    .setStyle(
+                                        NotificationCompat.BigTextStyle()
+                                            .bigText(
                                                 "${
                                                     translate(
-                                                        english = allWorkmatesJoining,
-                                                        spanish = allWorkmatesJoining.toString()
-                                                            .replace("with", "con")
+                                                        english = "Today, you're eating lunch at",
+                                                        spanish = "Hoy vas a almorzar en"
                                                     )
-                                                } "
+                                                } $nameOfRestaurant - $addressOfRestaurant" +
+                                                        "${
+                                                            translate(
+                                                                english = allWorkmatesJoining,
+                                                                spanish = allWorkmatesJoining.toString()
+                                                                    .replace("with", "con")
+                                                            )
+                                                        } "
+                                            )
                                     )
-                            )
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                            .setColor(Color.parseColor("#71E3B1"))
+                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                    .setColor(Color.parseColor("#71E3B1"))
 
-                        builder.setContentIntent(contentIntent)
-                        builder.setDefaults(Notification.DEFAULT_SOUND)
-                        builder.setAutoCancel(true)
-                        val notificationManager =
-                            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                        notificationManager.notify(200, builder.build())
-                        resetAlarm(context)
+                                builder.setContentIntent(contentIntent)
+                                builder.setDefaults(Notification.DEFAULT_SOUND)
+                                builder.setAutoCancel(true)
+                                val notificationManager =
+                                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                                notificationManager.notify(200, builder.build())
+                                resetAlarm(context)
+                            }
+                        }
                     }
+
             }
         }
     }
@@ -136,16 +157,4 @@ class AlarmReceiver : BroadcastReceiver() {
         }
         return ""
     }
-
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        return if (language.toString() == "español") {
-            return spanish
-        } else {
-            return english
-        }
-    }
-
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Go4Lunch</string>
+    <string name="app_name" translatable="false">Lunch at Work</string>
     <string name="open" translatable="false">open</string>
     <string name="close" translatable="false">close</string>
     <string name="facebook_app_id" translatable="false">383126392718290</string>

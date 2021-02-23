@@ -1,10 +1,10 @@
 package com.amercosovic.go4lunch.activities
 
-import android.app.Activity
-import android.app.AlarmManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.receiver.AlarmReceiver
+import com.amercosovic.go4lunch.utility.Translate.translate
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -37,7 +38,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Duration
+import java.time.LocalTime
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class LoginActivity : AppCompatActivity() {
 
@@ -47,6 +51,10 @@ class LoginActivity : AppCompatActivity() {
     private var callbackManager = CallbackManager.Factory.create()
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private lateinit var alarmManager: AlarmManager
+    lateinit var notificationManager: NotificationManager
+    lateinit var notificationChannel: NotificationChannel
+    private val channelId = "lunch"
+    private val description = "notification"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,64 +65,26 @@ class LoginActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-        // logout, cancel alarms, clear inputs of sign in edit texts
+        // create notification channel for alarm receiver
+        createNotificationChannel()
+        // logout, clear inputs of sign in edit texts
         logout()
-        cancelAlarm()
+        // clear username and password edit texts
         clearInputs()
 
+        // initialize animation object
         val animation = AnimationUtils.loadAnimation(this, R.anim.scale_up)
 
         // create new user account
         registerButton.setOnClickListener {
             registerButton.startAnimation(animation)
-            val userName = editTextUsername.text.toString()
-            val email = editTextEmailAddress.text.toString()
-            val password = editTextPassword.text.toString()
-
-            when {
-                (!userName.isNullOrEmpty() && !email.isNullOrEmpty() && !password.isNullOrEmpty()) -> {
-                    registerUser(email = email, userName = userName, password = password)
-                }
-            }
-            when {
-                (editTextUsername.visibility == View.VISIBLE && userName.isNullOrEmpty() ||
-                        editTextUsername.visibility == View.VISIBLE && email.isNullOrEmpty() ||
-                        editTextUsername.visibility == View.VISIBLE && password.isNullOrEmpty()) -> {
-                    Toast.makeText(
-                        this,
-                        translate(
-                            english = "Please complete missing fields to create account",
-                            spanish = "Complete los campos que faltan para crear una cuenta"
-                        ),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-            when {
-                (editTextUsername.visibility == View.GONE) -> {
-                    editTextUsername.visibility = View.VISIBLE
-                }
-            }
+            handleEditTextClicksRegister()
         }
 
         //login user
         loginButton.setOnClickListener {
             loginButton.startAnimation(animation)
-            val email = editTextEmailAddress.text.toString()
-            val password = editTextPassword.text.toString()
-
-            if (!email.isNullOrEmpty() && !password.isNullOrEmpty()) {
-                signIn(email = email, password = password)
-            } else {
-                Toast.makeText(
-                    this,
-                    translate(
-                        english = "Please complete missing fields to create account",
-                        spanish = "Complete los campos que faltan para crear una cuenta"
-                    ),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+            handleEditTextClicksLogin()
         }
 
         // login with google
@@ -184,7 +154,7 @@ class LoginActivity : AppCompatActivity() {
                             if (task.isSuccessful) {
                                 addFirestoreDocIfDoesntExist()
                                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                                intent.putExtra("FromLoginPage", "FromLoginPage")
+                                getCurrentUser()?.let { resetAlarmAfterLogin(it) }
                                 overridePendingTransition(
                                     R.anim.slide_out_down,
                                     R.anim.slide_in_down
@@ -209,7 +179,7 @@ class LoginActivity : AppCompatActivity() {
                         if (task.isSuccessful) {
                             addFirestoreDocIfDoesntExist()
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            intent.putExtra("FromLoginPage", "FromLoginPage")
+                            getCurrentUser()?.let { resetAlarmAfterLogin(it) }
                             overridePendingTransition(R.anim.slide_out_down, R.anim.slide_in_down)
                             startActivity(intent)
                         }
@@ -338,7 +308,7 @@ class LoginActivity : AppCompatActivity() {
                         }.apply()
                     }
                     val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                    intent.putExtra("FromLoginPage", "FromLoginPage")
+                    getCurrentUser()?.let { resetAlarmAfterLogin(it) }
                     overridePendingTransition(
                         R.anim.slide_out_down,
                         R.anim.slide_in_down
@@ -382,25 +352,127 @@ class LoginActivity : AppCompatActivity() {
         }.apply()
     }
 
-    // cancel alarm
-    private fun cancelAlarm() {
+    // reset alarm after login
+    private fun resetAlarmAfterLogin(user: String) {
+        val sharedPrefs = this.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        val wasAlarmOn = sharedPrefs.getString("alarmWasOnAtLogout", null)
+        if (wasAlarmOn != null) {
+            if (user.toString() != "") {
+                val restaurantReference = firestore.collection("users")
+                    .document(user)
+                restaurantReference.get().addOnSuccessListener { document ->
+                    if (!document["userRestaurant"].toString().contains("undecided")) {
+                        resetAlarm()
+                        editor.apply {
+                            remove("alarmWasOnAtLogout")
+                        }.apply()
+                    }
+                }
+            }
+        }
+    }
+
+    // get current user info
+    private fun getCurrentUser(): String? {
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
+        val sharedPrefs = this.getSharedPreferences("sharedPrefs", AppCompatActivity.MODE_PRIVATE)
+        val currentUserName = sharedPrefs.getString(currentUserEmail, null)
+        if (!FirebaseAuth.getInstance().currentUser?.displayName.isNullOrEmpty() &&
+            !FirebaseAuth.getInstance().currentUser?.displayName.toString().contains("null")
+        ) {
+            return FirebaseAuth.getInstance().currentUser?.displayName
+        } else if (currentUserName != null) {
+            return currentUserName.toString()
+        }
+        return ""
+    }
+
+    // reset alarm
+    private fun resetAlarm() {
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, AlarmReceiver::class.java)
         val pendingIntent =
             PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
+        val pendingIntent2 =
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        // 15 seconds = 15000 milliseconds
+        val timeUntilNoon = Duration.between(LocalTime.now(), LocalTime.NOON).seconds
+        val timeUntilNoonInMillis = TimeUnit.SECONDS.toMillis(timeUntilNoon.toLong())
+        val myAlarm = AlarmManager.AlarmClockInfo(
+            System.currentTimeMillis() + timeUntilNoonInMillis,
+            pendingIntent2
+        )
+        alarmManager.setAlarmClock(myAlarm, pendingIntent)
     }
 
-    // translate to spanish
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
+    // create my notification channel for notification in alarm receiver
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationChannel = NotificationChannel(
+                channelId, description, NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.BLACK
+            notificationChannel.enableVibration(false)
 
-        if (language.toString() == "español") {
-            return spanish
+            notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+    }
+
+    // handle edit text clicks when registering
+    private fun handleEditTextClicksRegister() {
+        val userName = editTextUsername.text.toString()
+        val email = editTextEmailAddress.text.toString()
+        val password = editTextPassword.text.toString()
+
+        when {
+            (!userName.isNullOrEmpty() && !email.isNullOrEmpty() && !password.isNullOrEmpty()) -> {
+                registerUser(email = email, userName = userName, password = password)
+            }
+        }
+        when {
+            (editTextUsername.visibility == View.VISIBLE && userName.isNullOrEmpty() ||
+                    editTextUsername.visibility == View.VISIBLE && email.isNullOrEmpty() ||
+                    editTextUsername.visibility == View.VISIBLE && password.isNullOrEmpty()) -> {
+                Toast.makeText(
+                    this,
+                    translate(
+                        english = "Please complete missing fields to create account",
+                        spanish = "Complete los campos que faltan para crear una cuenta"
+                    ),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+        when {
+            (editTextUsername.visibility == View.GONE) -> {
+                editTextUsername.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    // handle edit text clicks when logging in
+    private fun handleEditTextClicksLogin() {
+        val email = editTextEmailAddress.text.toString()
+        val password = editTextPassword.text.toString()
+
+        if (!email.isNullOrEmpty() && !password.isNullOrEmpty()) {
+            signIn(email = email, password = password)
         } else {
-            return english
+            Toast.makeText(
+                this,
+                translate(
+                    english = "Please complete missing fields to create account",
+                    spanish = "Complete los campos que faltan para crear una cuenta"
+                ),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
 }
+
+

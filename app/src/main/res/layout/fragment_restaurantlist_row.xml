@@ -4,38 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="100dp">
 
-    <ImageView
-        android:id="@+id/restaurantRatingIcon3"
-        android:visibility="gone"
-        android:layout_width="20dp"
-        android:layout_height="14dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="126dp"
-        android:layout_marginBottom="17dp"
-        app:srcCompat="@drawable/ratingstaricon" />
 
-    <ImageView
-        android:id="@+id/restaurantRatingIcon2"
-        android:visibility="gone"
-        android:layout_width="20dp"
-        android:layout_height="14dp"
+    <RatingBar
+        android:id="@+id/restaurantRatingFromList"
+        style="?android:attr/ratingBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="109dp"
-        android:layout_marginBottom="17dp"
-        app:srcCompat="@drawable/ratingstaricon" />
-
-    <ImageView
-        android:id="@+id/restaurantRatingIcon1"
-        android:visibility="gone"
-        android:layout_width="20dp"
-        android:layout_height="14dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="92dp"
-        android:layout_marginBottom="17dp"
-        app:srcCompat="@drawable/ratingstaricon" />
+        android:layout_marginEnd="93dp"
+        android:layout_marginBottom="15dp"
+        android:foregroundGravity="center"
+        android:isIndicator="true"
+        android:numStars="3"
+        android:progressBackgroundTint="@color/myBlack"
+        android:progressTint="@color/myYellow"
+        android:rating="5"
+        android:scaleX="1"
+        android:scaleY="1" />
 
     <TextView
         android:id="@+id/distanceFromUserToRestaurant"

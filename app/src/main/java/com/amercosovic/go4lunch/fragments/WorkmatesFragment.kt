@@ -9,13 +9,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.adapters.AllUsersAdapter
 import com.amercosovic.go4lunch.model.Users
+import com.amercosovic.go4lunch.utility.Translate.translate
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_workmates.*
-import java.util.*
 
 class WorkmatesFragment : BaseFragment() {
 
@@ -40,19 +40,21 @@ class WorkmatesFragment : BaseFragment() {
             translate(english = "Search workmates", spanish = " Buscar compañeras")
     }
 
-
+    // call fun to initialize recyclerview
+    // start listening to changes with firestore adapter
     override fun onStart() {
         super.onStart()
         initRecyclerView()
         adapter?.startListening()
     }
 
+    // stop listening to changes with firestore adapter
     override fun onStop() {
         super.onStop()
         adapter?.stopListening()
     }
 
-    // initialize recyclerview
+    // initialize recyclerview function
     private fun initRecyclerView() {
         val query: Query = collectionReference
 
@@ -67,17 +69,6 @@ class WorkmatesFragment : BaseFragment() {
         workmatesFragmentRecyclerView.adapter = adapter
         workmatesFragmentRecyclerView.addItemDecoration(decoration)
         adapter?.notifyDataSetChanged()
-    }
-
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        return if (language.toString() == "español") {
-            return spanish
-        } else {
-            return english
-        }
     }
 }
 

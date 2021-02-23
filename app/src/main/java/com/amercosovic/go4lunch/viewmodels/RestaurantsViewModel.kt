@@ -43,12 +43,11 @@ class RestaurantsViewModel : ViewModel() {
                 fields = "name,website,formatted_phone_number",
                 key = Constants.GOOGLE_API_KEY
             )
-            if (!response.result.toString().isEmpty()) {
+            if (response.result != null) {
                 state2.postValue(PlaceDetailsState.Success(response))
             } else {
                 state2.postValue(PlaceDetailsState.Error("Error getting data"))
             }
         }
     }
-
 }

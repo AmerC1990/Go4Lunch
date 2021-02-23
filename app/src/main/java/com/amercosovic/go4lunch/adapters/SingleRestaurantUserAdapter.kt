@@ -6,11 +6,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.model.Users
+import com.amercosovic.go4lunch.utility.Translate.translate
 import com.bumptech.glide.Glide
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import kotlinx.android.synthetic.main.single_restaurant_user_row.view.*
-import java.util.*
 
 class SingleRestaurantUserAdapter(
     options: FirestoreRecyclerOptions<Users>
@@ -42,16 +42,5 @@ class SingleRestaurantUserAdapter(
     class UserAdapterVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var userName = itemView.usernameTextView
         var userProfilePic = itemView.userProfilePicImageView
-    }
-
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        return if (language.toString() == "español") {
-            return spanish
-        } else {
-            return english
-        }
     }
 }

@@ -14,13 +14,13 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.adapters.RestaurantListAdapter
+import com.amercosovic.go4lunch.utility.Translate.translate
 import com.amercosovic.go4lunch.viewmodels.RestaurantsViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_restaurantlist.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import java.util.*
 
 
 class RestaurantListFragment : BaseFragment() {
@@ -96,7 +96,6 @@ class RestaurantListFragment : BaseFragment() {
                         location.longitude.toString()
                     )
                 }
-
             }
         }
     }
@@ -130,17 +129,6 @@ class RestaurantListFragment : BaseFragment() {
                 }
             }
         })
-    }
-
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        return if (language.toString() == "español") {
-            return spanish
-        } else {
-            return english
-        }
     }
 }
 

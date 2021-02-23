@@ -23,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.activities.RestaurantDetailsActivity
+import com.amercosovic.go4lunch.utility.Translate.translate
 import com.amercosovic.go4lunch.viewmodels.RestaurantsViewModel
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -38,7 +39,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 class MapFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -67,6 +67,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
         locationRequest = LocationRequest()
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        // initialize
         viewModel = ViewModelProvider(this).get(RestaurantsViewModel::class.java)
         // check is turned on user's device
         isLocationOn()
@@ -349,7 +350,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                                     Intent(this.context, RestaurantDetailsActivity::class.java)
                                 intent.putExtra(
                                     "restaurantDataFromMap",
-                                    restaurantData.filter { it.name == markerName }.toString()
+                                    restaurantData.find { it.name == markerName }
                                 )
                                 startActivity(intent)
                             }
@@ -430,7 +431,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
     private fun maintainMarkerColor(reference: CollectionReference, markerList: List<Marker>) {
         reference.addSnapshotListener { value, error ->
             for (marker in markerList) {
-                reference.whereEqualTo("userRestaurant", marker.title.toString() + " ").get()
+                reference.whereEqualTo("userRestaurant", marker.title.toString()).get()
                     .addOnSuccessListener { documents ->
                         for (document in documents) {
                             if (document.data.toString().contains(marker.title.toString())) {
@@ -453,17 +454,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
                         }
                     }
             }
-        }
-    }
-
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        return if (language.toString() == "español") {
-            return spanish
-        } else {
-            return english
         }
     }
 

@@ -9,7 +9,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -21,11 +20,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.amercosovic.go4lunch.PlaceDetailsState
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.adapters.SingleRestaurantUserAdapter
+import com.amercosovic.go4lunch.model.Restaurant
 import com.amercosovic.go4lunch.model.Users
 import com.amercosovic.go4lunch.receiver.AlarmReceiver
+import com.amercosovic.go4lunch.utility.Translate.translate
 import com.amercosovic.go4lunch.viewmodels.RestaurantsViewModel
 import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
 import com.bumptech.glide.Glide
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
@@ -55,46 +57,40 @@ class RestaurantDetailsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_restaurant_details)
+        // attach livedata observers
         attachObservers()
+        // create notification channel
         createNotificationChannel()
+        //change font size of "call", "website" and "like if device is in spanish
         changeFontSizeIfSpanish()
 
+        // set status bar to transparent
         setTransparentStatusBar()
+
+        // receive data from previous fragment and call insertRestaurantDetails
         receiveDataAndCheckIfNullOrEmpty()
     }
 
     // populate ui with data
-    private fun insertRestaurantDetails(data: String?) {
-        viewModel.fetchWebsiteAndPhoneNumberData(
-            data.toString().substringAfter("placeId=").substringBefore(",")
-        )
+    private fun insertRestaurantDetails(data: Restaurant?) {
+        val mapper = jacksonObjectMapper()
+        val restaurantDataForFirestore = mapper.writeValueAsString(data)
 
-        if (!data.toString().substringAfter("rating=").substringBefore(",").contains("null")) {
-            val rating =
-                data?.substringAfter("rating")?.replace("=", "")?.substringBefore(",")?.toDouble()
-                    ?.div(1.66)
-
-            when {
-                rating.toString().contains("1.") -> {
-                    restaurantDetailRating1.visibility = View.VISIBLE
-                }
-                rating.toString().contains("2.") -> {
-                    restaurantDetailRating1.visibility = View.VISIBLE
-                    restaurantDetailRating2.visibility = View.VISIBLE
-                }
-                rating.toString().contains("3.") -> {
-                    restaurantDetailRating1.visibility = View.VISIBLE
-                    restaurantDetailRating2.visibility = View.VISIBLE
-                    restaurantDetailRating3.visibility = View.VISIBLE
-                }
-            }
-        } else {
-            restaurantDetailRating1.visibility = View.VISIBLE
-            restaurantDetailRating2.visibility = View.VISIBLE
+        data?.placeId?.let {
+            viewModel.fetchWebsiteAndPhoneNumberData(
+                it
+            )
         }
 
-        if (!data.toString().substringAfter("photoReference").replace(",", "").replace("]", "")
-                .replace("[", "").replace("=", "").substringBefore(" ").isNullOrEmpty()
+        if (!data?.rating.toString().isNullOrEmpty()) {
+            val rating = data?.rating?.div(1.66)
+
+            if (rating != null) {
+                restaurantRating.rating = rating.toFloat()
+            }
+        }
+
+        if (!data?.photos.isNullOrEmpty()
         ) {
             Glide.with(imageOfRestaurant)
                 .load(
@@ -116,11 +112,9 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                 .into(imageOfRestaurant)
         }
 
-        val restaurantName = data?.substringAfter("name=")?.replace("=", "")?.replace(",", "")
-            ?.replace("=", "")?.replace(",", "")?.substringBefore("opening")
+        val restaurantName = data?.name
 
-        val addressOfRestaurant = data?.substringAfter("vicinity=")
-            ?.substringBefore(",")
+        val addressOfRestaurant = data?.vicinity
 
         addressOfRestaurantTextview.text = addressOfRestaurant?.substring(
             0, Math.min(
@@ -139,10 +133,10 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                 ) {
                     getCurrentUser()?.let { it1 ->
                         addUserToFireStore(
-                            userRestaurant = restaurantName,
+                            userRestaurant = restaurantName.removeSuffix(" "),
                             userName = it1,
                             userImage = FirebaseAuth.getInstance().currentUser?.photoUrl.toString(),
-                            userRestaurantData = data,
+                            userRestaurantData = restaurantDataForFirestore.toString(),
                             restaurantAddress = addressOfRestaurantTextview.text.toString()
                         )
                     }
@@ -429,7 +423,6 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                 }
                 is Error -> {
                     restaurantListProgressBar.visibility = View.GONE
-                    Toast.makeText(this, state2.message, Toast.LENGTH_LONG).show()
                 }
             }
         })
@@ -458,7 +451,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         val timeUntilNoon = Duration.between(LocalTime.now(), LocalTime.NOON).seconds
         val timeUntilNoonInMillis = TimeUnit.SECONDS.toMillis(timeUntilNoon.toLong())
         val myAlarm = AlarmManager.AlarmClockInfo(
-            System.currentTimeMillis() + timeUntilNoonInMillis,
+            System.currentTimeMillis() + 15000,
             pendingIntent2
         )
         alarmManager.setAlarmClock(myAlarm, pendingIntent)
@@ -521,17 +514,19 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
     // get data from passed intent and pass to populate ui
     private fun receiveDataAndCheckIfNullOrEmpty() {
-        val restaurantDataFromList: Parcelable? =
-            intent.extras?.getParcelable("restaurantDataFromList")
-        val restaurantDataFromMap: String? = intent.extras?.getString("restaurantDataFromMap")
-        val restaurantDataFromWorkmates: String? = intent.extras?.getString("userRestaurantData")
-        val restaurantDataFromNavDrawer: String? =
-            intent.extras?.getString("restaurantDataFromNavDrawerClick")
-        val restaurantDataFromNotification: String? =
-            intent.extras?.getString("restaurantDataFromNotification")
+        val restaurantDataFromList: Restaurant? =
+            intent.extras?.getParcelable("restaurantDataFromList") as Restaurant?
+        val restaurantDataFromMap: Restaurant? =
+            intent.extras?.getParcelable("restaurantDataFromMap") as Restaurant?
+        val restaurantDataFromWorkmates: Restaurant? =
+            intent.extras?.getParcelable("userRestaurantData") as Restaurant?
+        val restaurantDataFromNavDrawer: Restaurant? =
+            intent.extras?.getParcelable("restaurantDataFromNavDrawerClick") as Restaurant?
+        val restaurantDataFromNotification: Restaurant? =
+            intent.extras?.getParcelable("restaurantDataFromNotification") as Restaurant?
 
         if (restaurantDataFromList != null) {
-            insertRestaurantDetails(restaurantDataFromList.toString())
+            insertRestaurantDetails(restaurantDataFromList)
         }
         if (restaurantDataFromMap != null) {
             insertRestaurantDetails(restaurantDataFromMap)
@@ -547,17 +542,6 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         }
     }
 
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        if (language.toString() == "español") {
-            return spanish
-        } else {
-            return english
-        }
-    }
-
     // change font size of call, website and like textviews if translated in spanish
     private fun changeFontSizeIfSpanish() {
         val language = Locale.getDefault().displayLanguage
@@ -569,11 +553,13 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // start listening for changes with firestore adapter
     override fun onStart() {
         super.onStart()
         adapter?.startListening()
     }
 
+    // stop listening for changes with firestore adapter
     override fun onDestroy() {
         super.onDestroy()
         adapter?.stopListening()

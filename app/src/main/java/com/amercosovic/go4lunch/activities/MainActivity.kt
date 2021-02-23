@@ -10,7 +10,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.Toast
@@ -21,6 +20,8 @@ import androidx.lifecycle.lifecycleScope
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.fragments.*
 import com.amercosovic.go4lunch.receiver.AlarmReceiver
+import com.amercosovic.go4lunch.utility.RestaurantFromFirestore
+import com.amercosovic.go4lunch.utility.Translate.translate
 import com.bumptech.glide.Glide
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -31,14 +32,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_restaurant_details.*
 import kotlinx.android.synthetic.main.fragment_restaurantlist.*
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Duration
-import java.time.LocalTime
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -63,8 +62,7 @@ class MainActivity : AppCompatActivity() {
         setUpSearchView()
         // create notification channel for alarm receiver
         createNotificationChannel()
-        // get current user and reset alarm after login in
-        getCurrentUser()?.let { resetAlarmAfterLogin(it) }
+
         val mapFragment = MapFragment()
 
         makeCurrentFragment(mapFragment)
@@ -86,7 +84,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // handle clicks of nav drawer items - open corresponding fragment or activity
-    fun update(view: View) {
+    fun handleNavDrawerItemClicks(view: View) {
         when (view.id) {
             R.id.yourLunchButton -> {
                 getCurrentUser()?.let { passDataOpenRestaurantActivity(it) }
@@ -107,6 +105,7 @@ class MainActivity : AppCompatActivity() {
                 lifecycleScope.launch(IO) {
                     logout()
                     withContext(Main) {
+                        alarmOnWhenLogout()
                         cancelAlarm()
                         val intent = Intent(this@MainActivity, LoginActivity::class.java)
                         overridePendingTransition(R.anim.slide_out_down, R.anim.slide_in_down)
@@ -208,10 +207,14 @@ class MainActivity : AppCompatActivity() {
             if (!document["userRestaurant"].toString().contains("undecided")) {
                 val data = document["userRestaurantData"].toString()
                 val intent = Intent(this, RestaurantDetailsActivity::class.java)
-                intent.putExtra("restaurantDataFromNavDrawerClick", data)
-                startActivity(intent)
+                lifecycleScope.launch(Default) {
+                    val restaurant = RestaurantFromFirestore.getRestaurant(data)
+                    withContext(Main) {
+                        intent.putExtra("restaurantDataFromNavDrawerClick", restaurant)
+                        startActivity(intent)
+                    }
+                }
             } else if (document["userRestaurant"].toString().contains("undecided")) {
-
                 Toast.makeText(
                     this,
                     translate(
@@ -240,30 +243,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     // reset alarm after login
-    private fun resetAlarmAfterLogin(user: String) {
-        val justLoggedIn: String? = intent.extras?.getString("FromLoginPage", null)
+    private fun alarmOnWhenLogout() {
         val sharedPrefs = this.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
         val editor = sharedPrefs.edit()
-        val wasAlarmOnAtLogout = sharedPrefs.getString("alarmWasOnAtLogout", null)
-        if (!justLoggedIn.toString().isNullOrEmpty() && !justLoggedIn.toString().contains("null")) {
-            Log.d("justloggedin", justLoggedIn.toString())
-            val currentUser = getCurrentUser()
-            if (currentUser.toString() != "") {
-                val restaurantReference = firestore.collection("users")
-                    .document(user)
-                restaurantReference.get().addOnSuccessListener { document ->
-                    if (!document["userRestaurant"].toString().contains("undecided")) {
-                        if (wasAlarmOnAtLogout != null) {
-                            resetAlarm()
-                            editor.apply {
-                                remove("alarmWasOnAtLogout")
-                            }
-                        }
-
-                    }
-                }
-            }
+        if (isAlarmOn()) {
+            editor.apply {
+                putString("alarmWasOnAtLogout", "alarmWasOnAtLogout")
+            }.apply()
         }
+
     }
 
     // cancel alarm
@@ -284,23 +272,6 @@ class MainActivity : AppCompatActivity() {
         return ""
     }
 
-    // reset alarm
-    private fun resetAlarm() {
-        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, AlarmReceiver::class.java)
-        val pendingIntent =
-            PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val pendingIntent2 =
-            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        // 15 seconds = 15000 milliseconds
-        val timeUntilNoon = Duration.between(LocalTime.now(), LocalTime.NOON).seconds
-        val timeUntilNoonInMillis = TimeUnit.SECONDS.toMillis(timeUntilNoon.toLong())
-        val myAlarm = AlarmManager.AlarmClockInfo(
-            System.currentTimeMillis() + timeUntilNoonInMillis,
-            pendingIntent2
-        )
-        alarmManager.setAlarmClock(myAlarm, pendingIntent)
-    }
 
     // create my notification channel for notification in alarm receiver
     private fun createNotificationChannel() {
@@ -315,17 +286,6 @@ class MainActivity : AppCompatActivity() {
             notificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(notificationChannel)
-        }
-    }
-
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        return if (language.toString() == "español") {
-            spanish
-        } else {
-            english
         }
     }
 

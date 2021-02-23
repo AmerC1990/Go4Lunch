@@ -12,11 +12,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.activities.RestaurantDetailsActivity
 import com.amercosovic.go4lunch.model.Users
+import com.amercosovic.go4lunch.utility.RestaurantFromFirestore
+import com.amercosovic.go4lunch.utility.Translate.translate
 import com.bumptech.glide.Glide
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import kotlinx.android.synthetic.main.single_restaurant_user_row.view.*
-import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AllUsersAdapter(
     options: FirestoreRecyclerOptions<Users>
@@ -30,7 +36,6 @@ class AllUsersAdapter(
                 .inflate(R.layout.all_user_restaurant_row, parent, false)
         )
     }
-
 
     override fun onBindViewHolder(holder: UserAdapterVH, position: Int, model: Users) {
         // bind data
@@ -87,26 +92,20 @@ class AllUsersAdapter(
                     Toast.LENGTH_LONG
                 ).show()
             } else if (model.userRestaurantData?.isNullOrEmpty() == false) {
-                intent.putExtra("userRestaurantData", model.userRestaurantData)
-                holder.itemView.context.startActivity(intent)
+                CoroutineScope(Default).launch {
+                    val restaurant =
+                        RestaurantFromFirestore.getRestaurant(model.userRestaurantData.toString())
+                    withContext(Main) {
+                        intent.putExtra("userRestaurantData", restaurant)
+                        holder.itemView.context.startActivity(intent)
+                    }
+                }
             }
-
         }
     }
 
     class UserAdapterVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var userName = itemView.usernameTextView
         var userProfilePic = itemView.userProfilePicImageView
-    }
-
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        return if (language.toString() == "español") {
-            return spanish
-        } else {
-            return english
-        }
     }
 }

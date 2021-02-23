@@ -16,11 +16,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.receiver.AlarmReceiver
+import com.amercosovic.go4lunch.utility.Translate.translate
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_settings.*
 import java.time.Duration
 import java.time.LocalTime
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -131,17 +131,5 @@ class SettingsFragment : Fragment() {
         alarmManager.cancel(pendingIntent)
         pendingIntent.cancel()
     }
-
-    // translate
-    private fun translate(spanish: String, english: String): String {
-        val language = Locale.getDefault().displayLanguage
-
-        return if (language.toString() == "español") {
-            return spanish
-        } else {
-            return english
-        }
-    }
-
 
 }

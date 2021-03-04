@@ -200,30 +200,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     // open restaurant activity and pass data of restaurant
-    private fun passDataOpenRestaurantActivity(user: String) {
-        val restaurantReference = firestore.collection("users")
-            .document(user)
-        restaurantReference.get().addOnSuccessListener { document ->
-            if (!document["userRestaurant"].toString().contains("undecided")) {
-                val data = document["userRestaurantData"].toString()
-                val intent = Intent(this, RestaurantDetailsActivity::class.java)
-                lifecycleScope.launch(Default) {
-                    val restaurant = RestaurantFromFirestore.getRestaurant(data)
-                    withContext(Main) {
-                        intent.putExtra("restaurantDataFromNavDrawerClick", restaurant)
-                        startActivity(intent)
+    private fun passDataOpenRestaurantActivity(user: String?) {
+        if (!user.isNullOrEmpty()) {
+            val restaurantReference = firestore.collection("users")
+                .document(user)
+            restaurantReference.get().addOnSuccessListener { document ->
+                if (!document["userRestaurant"].toString().contains("undecided")) {
+                    val data = document["userRestaurantData"].toString()
+                    val intent = Intent(this, RestaurantDetailsActivity::class.java)
+                    lifecycleScope.launch(Default) {
+                        val restaurant = RestaurantFromFirestore.getRestaurant(data)
+                        withContext(Main) {
+                            intent.putExtra("restaurantDataFromNavDrawerClick", restaurant)
+                            startActivity(intent)
+                        }
                     }
+                } else if (document["userRestaurant"].toString().contains("undecided")) {
+                    Toast.makeText(
+                        this,
+                        translate(
+                            english = "You haven't decided on a restaurant yet!",
+                            spanish = "Aún no te has decidido por un restaurante!"
+                        ),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
-            } else if (document["userRestaurant"].toString().contains("undecided")) {
-                Toast.makeText(
-                    this,
-                    translate(
-                        english = "You haven't decided on a restaurant yet!",
-                        spanish = "Aún no te has decidido por un restaurante!"
-                    ),
-                    Toast.LENGTH_LONG
-                ).show()
+
             }
+        } else {
+            Toast.makeText(this, "You haven't decided on a restaurant yet!", Toast.LENGTH_LONG)
+                .show()
         }
     }
 

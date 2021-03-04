@@ -1,4 +1,4 @@
-package com.amercosovic.mapfragmentwithmvvmldemo.utility
+package com.amercosovic.go4lunch.utility
 
 
 object Constants {

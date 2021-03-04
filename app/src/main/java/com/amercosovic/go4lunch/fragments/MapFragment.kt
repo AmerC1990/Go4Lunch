@@ -1,6 +1,7 @@
 package com.amercosovic.go4lunch.fragments
 
 import android.Manifest
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -43,7 +44,7 @@ import kotlinx.coroutines.withContext
 class MapFragment : BaseFragment(), OnMapReadyCallback {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private var viewModel = RestaurantsViewModel()
+    private var viewModel = RestaurantsViewModel(application = Application())
     private lateinit var map: GoogleMap
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val INTERVAL: Long = 10000

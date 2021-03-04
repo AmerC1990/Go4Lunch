@@ -1,18 +1,20 @@
 package com.amercosovic.go4lunch.viewmodels
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.PlaceDetailsState
 import com.amercosovic.go4lunch.retrofit.ApiClient
-import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
+import com.amercosovic.go4lunch.utility.Constants
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
-class RestaurantsViewModel : ViewModel() {
+class RestaurantsViewModel(application: Application) : AndroidViewModel(application) {
 
-    // initialize mutable livedata objects
+    // initialize mutable live data objects
     val state: MutableLiveData<NearbyPlacesState> = MutableLiveData()
     val state2: MutableLiveData<PlaceDetailsState> = MutableLiveData()
 
@@ -26,7 +28,7 @@ class RestaurantsViewModel : ViewModel() {
                 radius = Constants.RADIUS_1000,
                 types = Constants.TYPE_RESTAURANT
             )
-            if (!response.restaurants.isEmpty()) {
+            if (response.restaurants.isNotEmpty()) {
                 state.postValue(NearbyPlacesState.Success(response))
             } else {
                 state.postValue(NearbyPlacesState.Error("Error getting data"))

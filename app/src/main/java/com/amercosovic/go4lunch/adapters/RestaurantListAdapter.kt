@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.amercosovic.go4lunch.R
 import com.amercosovic.go4lunch.activities.RestaurantDetailsActivity
 import com.amercosovic.go4lunch.model.Restaurant
+import com.amercosovic.go4lunch.utility.Constants
 import com.amercosovic.go4lunch.utility.Translate.translate
-import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
 import com.bumptech.glide.Glide
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore

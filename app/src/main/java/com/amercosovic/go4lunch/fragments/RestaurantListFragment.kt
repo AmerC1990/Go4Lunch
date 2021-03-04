@@ -1,5 +1,6 @@
 package com.amercosovic.go4lunch.fragments
 
+import android.app.Application
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,7 +26,7 @@ import kotlinx.coroutines.launch
 
 class RestaurantListFragment : BaseFragment() {
 
-    private var viewModel = RestaurantsViewModel()
+    private var viewModel = RestaurantsViewModel(application = Application())
     lateinit var recyclerViewAdapter: RestaurantListAdapter
 
     override fun onCreateView(

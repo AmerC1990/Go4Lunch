@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amercosovic.go4lunch.PlaceDetailsState
@@ -23,9 +24,9 @@ import com.amercosovic.go4lunch.adapters.SingleRestaurantUserAdapter
 import com.amercosovic.go4lunch.model.Restaurant
 import com.amercosovic.go4lunch.model.Users
 import com.amercosovic.go4lunch.receiver.AlarmReceiver
+import com.amercosovic.go4lunch.utility.Constants
 import com.amercosovic.go4lunch.utility.Translate.translate
 import com.amercosovic.go4lunch.viewmodels.RestaurantsViewModel
-import com.amercosovic.mapfragmentwithmvvmldemo.utility.Constants
 import com.bumptech.glide.Glide
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
@@ -47,7 +48,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val collectionReference: CollectionReference = firestore.collection("users")
     var adapter: SingleRestaurantUserAdapter? = null
-    private var viewModel = RestaurantsViewModel()
+    private var viewModel = RestaurantsViewModel(application)
     private lateinit var alarmManager: AlarmManager
     lateinit var notificationManager: NotificationManager
     lateinit var notificationChannel: NotificationChannel

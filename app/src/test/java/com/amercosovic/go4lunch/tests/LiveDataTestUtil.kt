@@ -7,6 +7,15 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
+// This function creates a Kotlin extension function called getOrAwaitValue
+// which adds an observer,
+// gets the LiveData value, and then cleans up the observer
+
+// It observes a LiveData until it receives a new value (via onChanged) and then it removes
+// the observer. If the LiveData already has a value, it returns it immediately. Additionally,
+// if the value is never set, it will throw an exception after 2 seconds (or whatever you set).
+// This prevents tests that never finish when something goes wrong.
+
 @VisibleForTesting(otherwise = VisibleForTesting.NONE)
 fun <T> LiveData<T>.getOrAwaitValue(
     time: Long = 2,
@@ -14,6 +23,7 @@ fun <T> LiveData<T>.getOrAwaitValue(
     afterObserve: () -> Unit = {}
 ): T {
     var data: T? = null
+    // CountDownLatch() is used to make sure that a task waits for other threads before it starts
     val latch = CountDownLatch(1)
     val observer = object : Observer<T> {
         override fun onChanged(o: T?) {

@@ -15,7 +15,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amercosovic.go4lunch.PlaceDetailsState
@@ -37,6 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.activity_restaurant_details.*
 import kotlinx.android.synthetic.main.fragment_restaurantlist.*
+import java.lang.RuntimeException
 import java.time.Duration
 import java.time.LocalTime
 import java.util.*
@@ -48,7 +48,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val collectionReference: CollectionReference = firestore.collection("users")
     var adapter: SingleRestaurantUserAdapter? = null
-    private var viewModel = RestaurantsViewModel(application)
+    private var viewModel = RestaurantsViewModel(Application())
     private lateinit var alarmManager: AlarmManager
     lateinit var notificationManager: NotificationManager
     lateinit var notificationChannel: NotificationChannel
@@ -249,8 +249,8 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                         Toast.makeText(
                             this,
                             translate(
-                                english = "You're having lunch at $userRestaurant!",
-                                spanish = "Estás almorzando en $userRestaurant!"
+                                english = R.string.you_are_having_lunch_at.toString() + userRestaurant,
+                                spanish = R.string.you_are_having_lunch_at_spanish.toString() + userRestaurant
                             ),
                             Toast.LENGTH_LONG
                         ).show()
@@ -275,7 +275,10 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                     .addOnFailureListener { exception ->
                         Toast.makeText(
                             this,
-                            translate(english = "Failed to add", spanish = "No se pudo agregar"),
+                            translate(
+                                english = R.string.failed_to_add.toString(),
+                                spanish = R.string.failed_to_add_spanish.toString()
+                            ),
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -288,8 +291,8 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                         Toast.makeText(
                             this,
                             translate(
-                                english = "You're having lunch at $userRestaurant!",
-                                spanish = "Estás almorzando en $userRestaurant!"
+                                english = R.string.you_are_having_lunch_at.toString() + userRestaurant,
+                                spanish = R.string.you_are_having_lunch_at_spanish.toString() + userRestaurant
                             ),
                             Toast.LENGTH_LONG
                         ).show()
@@ -317,7 +320,10 @@ class RestaurantDetailsActivity : AppCompatActivity() {
                     .addOnFailureListener { exception ->
                         Toast.makeText(
                             this,
-                            translate(english = "Failed to add", spanish = "No se pudo agregar"),
+                            translate(
+                                english = R.string.failed_to_add.toString(),
+                                spanish = R.string.failed_to_add_spanish.toString()
+                            ),
                             Toast.LENGTH_LONG
                         ).show()
                         Log.e("Error", exception.message)
@@ -406,7 +412,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
 
     // attach livedata observers, set on click listeners for call and visit website when api call is successful
     private fun attachObservers() {
-        viewModel.state2.observe(this, Observer { state2 ->
+        viewModel.placeDetailsState.observe(this, Observer { state2 ->
             when (state2) {
                 is PlaceDetailsState.Success -> {
                     callIcon.setOnClickListener {
@@ -452,7 +458,7 @@ class RestaurantDetailsActivity : AppCompatActivity() {
         val timeUntilNoon = Duration.between(LocalTime.now(), LocalTime.NOON).seconds
         val timeUntilNoonInMillis = TimeUnit.SECONDS.toMillis(timeUntilNoon.toLong())
         val myAlarm = AlarmManager.AlarmClockInfo(
-            System.currentTimeMillis() + 15000,
+            System.currentTimeMillis() + timeUntilNoonInMillis,
             pendingIntent2
         )
         alarmManager.setAlarmClock(myAlarm, pendingIntent)

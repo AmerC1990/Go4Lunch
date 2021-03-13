@@ -44,7 +44,7 @@ import kotlinx.coroutines.withContext
 class MapFragment : BaseFragment(), OnMapReadyCallback {
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private var viewModel = RestaurantsViewModel(application = Application())
+    private var viewModel = RestaurantsViewModel(Application())
     private lateinit var map: GoogleMap
     private var fusedLocationProvider: FusedLocationProviderClient? = null
     private val INTERVAL: Long = 10000
@@ -93,9 +93,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                if (viewModel.state.value is NearbyPlacesState.Success) {
+                if (viewModel.nearbyPlacesState.value is NearbyPlacesState.Success) {
                     val filteredData =
-                        (viewModel.state.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants.filter {
+                        (viewModel.nearbyPlacesState.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants.filter {
                             it.name.contains(
                                 searchView.query,
                                 ignoreCase = true
@@ -301,7 +301,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback {
 
     // attach observers to draw markers with data
     private fun attachObservers() {
-        viewModel.state.observe(viewLifecycleOwner, Observer { state ->
+        viewModel.nearbyPlacesState.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
                 is NearbyPlacesState.Loading -> {
                     mapFraggmentProgressBar.visibility = View.VISIBLE

@@ -42,6 +42,7 @@ class SettingsFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        // create notification channel for notification in broadcast receiver
         createNotificationChannel()
         // set up search view
         val searchView = activity?.searchView
@@ -59,8 +60,8 @@ class SettingsFragment : Fragment() {
                 setAlarm()
                 Toast.makeText(
                     context, translate(
-                        english = "Notifications have been turned on!",
-                        spanish = "Se han activado las notificaciones!"
+                        english = R.string.notifications_turned_on.toString(),
+                        spanish = R.string.notifications_turned_on_spanish.toString()
                     ), Toast.LENGTH_LONG
                 ).show()
             } else if (!configureNotificationSwitch.isChecked) {
@@ -68,8 +69,8 @@ class SettingsFragment : Fragment() {
                 cancelAlarm()
                 Toast.makeText(
                     context, translate(
-                        english = "Notifications have been turned off!",
-                        spanish = "Se han desactivado las notificaciones!"
+                        english = R.string.notifications_turned_off.toString(),
+                        spanish = R.string.notifications_turned_off_spanish.toString()
                     ), Toast.LENGTH_LONG
                 ).show()
             }

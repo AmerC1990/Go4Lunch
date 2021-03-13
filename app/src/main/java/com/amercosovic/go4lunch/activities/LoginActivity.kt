@@ -260,8 +260,8 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(
                         this,
                         translate(
-                            english = "User Registration successful",
-                            spanish = "Registro de usuario exitosa"
+                            english = R.string.User_registration_successful.toString(),
+                            spanish = R.string.User_registration_successful_spanish.toString()
                         ),
                         Toast.LENGTH_LONG
                     ).show()
@@ -275,8 +275,8 @@ class LoginActivity : AppCompatActivity() {
                 else -> {
                     Toast.makeText(
                         this, translate(
-                            english = "User Registration failed",
-                            spanish = "Error de registro de usuario"
+                            english = R.string.User_Registration_failed.toString(),
+                            spanish = R.string.Error_de_registro_de_usuario.toString()
                         ), Toast.LENGTH_LONG
                     ).show()
                 }
@@ -293,8 +293,8 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(
                         this,
                         translate(
-                            english = "User Login success",
-                            spanish = "Inicio de sesión de usuario exitoso"
+                            english = R.string.User_Login_success.toString(),
+                            spanish = R.string.User_Login_success_spanish.toString()
                         ),
                         Toast.LENGTH_LONG
                     ).show()
@@ -319,8 +319,8 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(
                         this,
                         translate(
-                            english = "User Login failed",
-                            spanish = "Error de inicio de sesión de usuario"
+                            english = R.string.User_Login_failed.toString(),
+                            spanish = R.string.User_Login_failed_spanish.toString()
                         ),
                         Toast.LENGTH_LONG
                     ).show()
@@ -440,8 +440,8 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(
                     this,
                     translate(
-                        english = "Please complete missing fields to create account",
-                        spanish = "Complete los campos que faltan para crear una cuenta"
+                        english = R.string.missing_fields_reminder.toString(),
+                        spanish = R.string.missing_fields_reminder_spanish.toString()
                     ),
                     Toast.LENGTH_LONG
                 ).show()
@@ -465,8 +465,8 @@ class LoginActivity : AppCompatActivity() {
             Toast.makeText(
                 this,
                 translate(
-                    english = "Please complete missing fields to create account",
-                    spanish = "Complete los campos que faltan para crear una cuenta"
+                    english = R.string.missing_fields_reminder.toString(),
+                    spanish = R.string.missing_fields_reminder_spanish.toString()
                 ),
                 Toast.LENGTH_LONG
             ).show()

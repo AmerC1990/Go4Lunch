@@ -85,8 +85,8 @@ class AllUsersAdapter(
                     holder.itemView.context,
                     "${model.userName} ${
                         translate(
-                            english = "hasn't decided on a restaurant yet!",
-                            spanish = "Está indecisa en un restaurante"
+                            english = R.string.restaurant_undecided_toast.toString(),
+                            spanish = R.string.restaurant_undecided_toast_spanish.toString()
                         )
                     }",
                     Toast.LENGTH_LONG

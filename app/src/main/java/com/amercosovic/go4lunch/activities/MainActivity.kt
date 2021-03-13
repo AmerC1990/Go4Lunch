@@ -219,8 +219,8 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(
                         this,
                         translate(
-                            english = "You haven't decided on a restaurant yet!",
-                            spanish = "Aún no te has decidido por un restaurante!"
+                            english = R.string.restaurant_undecided_toast.toString(),
+                            spanish = R.string.restaurant_undecided_toast_spanish.toString()
                         ),
                         Toast.LENGTH_LONG
                     ).show()

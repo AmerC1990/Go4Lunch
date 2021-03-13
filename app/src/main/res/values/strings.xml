@@ -43,6 +43,29 @@
     <string name="call">CALL</string>
     <string name="open_until_7pm">Open until 7pm</string>
     <string name="notifications_on_off">Notifications On/Off</string>
+    <string name="Yes" translatable="false">Yes</string>
+    <string name="Si" translatable="false">Si</string>
+    <string name="User_registration_successful" translatable="false">User Registration successful</string>
+    <string name="User_registration_successful_spanish" translatable="false">Registro de usuario exitosa</string>
+    <string name="español" translatable="false">español</string>
+    <string name="User_Registration_failed" translatable="false">User Registration failed</string>
+    <string name="Error_de_registro_de_usuario" translatable="false">Error de registro de usuario</string>
+    <string name="User_Login_success" translatable="false">User Login success</string>
+    <string name="User_Login_success_spanish" translatable="false">Inicio de sesión de usuario exitoso</string>
+    <string name="User_Login_failed" translatable="false">User Login failed</string>
+    <string name="User_Login_failed_spanish" translatable="false">Error de inicio de sesión de usuario</string>
+    <string name="missing_fields_reminder" translatable="false">Please complete missing fields to create account</string>
+    <string name="missing_fields_reminder_spanish" translatable="false">Complete los campos que faltan para crear una cuenta</string>
+    <string name="restaurant_undecided_toast" translatable="false">You haven\'t decided on a restaurant yet!</string>
+    <string name="restaurant_undecided_toast_spanish" translatable="false">Aún no te has decidido por un restaurante!</string>
+    <string name="you_are_having_lunch_at" translatable="false">You\'re having lunch at</string>
+    <string name="you_are_having_lunch_at_spanish" translatable="false">Estás almorzando en</string>
+    <string name="failed_to_add" translatable="false">Failed to add</string>
+    <string name="failed_to_add_spanish" translatable="false">No se pudo agregar</string>
+    <string name="notifications_turned_on" translatable="false">Notifications have been turned on!</string>
+    <string name="notifications_turned_on_spanish" translatable="false">Se han activado las notificaciones!</string>
+    <string name="notifications_turned_off" translatable="false">Notifications have been turned off!</string>
+    <string name="notifications_turned_off_spanish" translatable="false">Se han desactivado las notificaciones!</string>
 
 
     <!--

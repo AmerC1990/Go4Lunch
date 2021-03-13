@@ -50,7 +50,7 @@ class AlarmReceiver : BroadcastReceiver() {
         // 24 hours = 86400000 milliseconds
         // 15 seconds = 15000 milliseconds
         val myAlarm = AlarmManager.AlarmClockInfo(
-            System.currentTimeMillis() + 15000,
+            System.currentTimeMillis() + 86400000,
             pendingIntent2
         )
         alarmManager.setAlarmClock(myAlarm, pendingIntent)
@@ -86,7 +86,6 @@ class AlarmReceiver : BroadcastReceiver() {
                         }
                         val notificationIntent =
                             Intent(context, RestaurantDetailsActivity::class.java)
-                        val mapper = jacksonObjectMapper()
                         CoroutineScope(Default).launch {
                             val restaurant = RestaurantFromFirestore.getRestaurant(data)
                             withContext(Main) {

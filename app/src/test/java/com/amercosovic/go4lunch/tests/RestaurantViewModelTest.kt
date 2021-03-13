@@ -1,32 +1,38 @@
 package com.amercosovic.go4lunch.tests
 
+import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.amercosovic.go4lunch.viewmodels.RestaurantsViewModel
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class)
 class RestaurantViewModelTest {
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
     @Test
+    @Throws(Exception::class)
     fun getNearbyPlaces_PostValueToLiveData() {
         // Given a fresh ViewModel
-        val restaurantsViewModel = RestaurantsViewModel(ApplicationProvider.getApplicationContext())
+        val application = RuntimeEnvironment.application
+        val restaurantsViewModel = RestaurantsViewModel(application)
 
         // When fetching nearby places
         restaurantsViewModel.fetchNearbyPlacesData("36.0726", "79.7920")
 
-        // Then the new state value is posted
-        val value = restaurantsViewModel.state
+        // Then the nearbyPlacesState value is posted
+        val value = restaurantsViewModel.nearbyPlacesState
 
+        // assert that it is not null
         MatcherAssert.assertThat(
             value.getOrAwaitValue(),
             CoreMatchers.not(CoreMatchers.nullValue())
@@ -34,16 +40,19 @@ class RestaurantViewModelTest {
     }
 
     @Test
+    @Throws(Exception::class)
     fun getPlaceDetails_PostValueToLiveData() {
         // Given a fresh ViewModel
-        val restaurantsViewModel = RestaurantsViewModel(ApplicationProvider.getApplicationContext())
+        val application = RuntimeEnvironment.application
+        val restaurantsViewModel = RestaurantsViewModel(application)
 
         // When fetching place details
         restaurantsViewModel.fetchWebsiteAndPhoneNumberData("ChIJY31kehwbU4gRxuEGnqSlHyY")
 
-        // Then the state2 value is posted
-        val value = restaurantsViewModel.state2
+        // Then the placeDetailsState value is posted
+        val value = restaurantsViewModel.placeDetailsState
 
+        // assert that it is not null
         MatcherAssert.assertThat(
             value.getOrAwaitValue(),
             CoreMatchers.not(CoreMatchers.nullValue())

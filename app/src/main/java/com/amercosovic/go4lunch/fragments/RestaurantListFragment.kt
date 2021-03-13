@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 
 class RestaurantListFragment : BaseFragment() {
 
-    private var viewModel = RestaurantsViewModel(application = Application())
+    private var viewModel = RestaurantsViewModel(Application())
     lateinit var recyclerViewAdapter: RestaurantListAdapter
 
     override fun onCreateView(
@@ -57,9 +57,9 @@ class RestaurantListFragment : BaseFragment() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                if (viewModel.state.value is NearbyPlacesState.Success) {
+                if (viewModel.nearbyPlacesState.value is NearbyPlacesState.Success) {
                     val filteredData =
-                        (viewModel.state.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants.filter {
+                        (viewModel.nearbyPlacesState.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants.filter {
                             it.name.contains(
                                 searchView.query,
                                 ignoreCase = true
@@ -69,7 +69,7 @@ class RestaurantListFragment : BaseFragment() {
                     recyclerViewAdapter.notifyDataSetChanged()
                     when (searchView.query.toString()) {
                         "" -> {
-                            recyclerViewAdapter.setListData((viewModel.state.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants)
+                            recyclerViewAdapter.setListData((viewModel.nearbyPlacesState.value as NearbyPlacesState.Success).nearbyPlacesResponse.restaurants)
                             recyclerViewAdapter.notifyDataSetChanged()
                         }
                     }
@@ -114,7 +114,7 @@ class RestaurantListFragment : BaseFragment() {
 
     // attach live data observers for restaurant data to populate recycler view
     private fun attachObservers() {
-        viewModel.state.observe(viewLifecycleOwner, Observer { state ->
+        viewModel.nearbyPlacesState.observe(viewLifecycleOwner, Observer { state ->
             when (state) {
                 is NearbyPlacesState.Loading -> {
                     restaurantListProgressBar.visibility = View.VISIBLE

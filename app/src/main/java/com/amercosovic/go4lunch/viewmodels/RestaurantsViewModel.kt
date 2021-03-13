@@ -3,7 +3,6 @@ package com.amercosovic.go4lunch.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amercosovic.go4lunch.NearbyPlacesState
 import com.amercosovic.go4lunch.PlaceDetailsState
@@ -15,12 +14,12 @@ import kotlinx.coroutines.launch
 class RestaurantsViewModel(application: Application) : AndroidViewModel(application) {
 
     // initialize mutable live data objects
-    val state: MutableLiveData<NearbyPlacesState> = MutableLiveData()
-    val state2: MutableLiveData<PlaceDetailsState> = MutableLiveData()
+    val nearbyPlacesState: MutableLiveData<NearbyPlacesState> = MutableLiveData()
+    val placeDetailsState: MutableLiveData<PlaceDetailsState> = MutableLiveData()
 
     // get data for nearby restaurants
     fun fetchNearbyPlacesData(latitude: String, longitude: String) {
-        state.value = NearbyPlacesState.Loading
+        nearbyPlacesState.value = NearbyPlacesState.Loading
         viewModelScope.launch(IO) {
             val response = ApiClient.getClient.getNearbyPlaces(
                 location = "${latitude},${longitude}",
@@ -29,16 +28,16 @@ class RestaurantsViewModel(application: Application) : AndroidViewModel(applicat
                 types = Constants.TYPE_RESTAURANT
             )
             if (response.restaurants.isNotEmpty()) {
-                state.postValue(NearbyPlacesState.Success(response))
+                nearbyPlacesState.postValue(NearbyPlacesState.Success(response))
             } else {
-                state.postValue(NearbyPlacesState.Error("Error getting data"))
+                nearbyPlacesState.postValue(NearbyPlacesState.Error("Error getting data"))
             }
         }
     }
 
     // get data for phone number and website url of a particular restaurant
     fun fetchWebsiteAndPhoneNumberData(data: String) {
-        state2.value = PlaceDetailsState.Loading
+        placeDetailsState.value = PlaceDetailsState.Loading
         viewModelScope.launch(IO) {
             val response = ApiClient.getClient.getPlaceDetails(
                 place_id = data.toString().substringAfter("placeId=").substringBefore(","),
@@ -46,9 +45,9 @@ class RestaurantsViewModel(application: Application) : AndroidViewModel(applicat
                 key = Constants.GOOGLE_API_KEY
             )
             if (response.result != null) {
-                state2.postValue(PlaceDetailsState.Success(response))
+                placeDetailsState.postValue(PlaceDetailsState.Success(response))
             } else {
-                state2.postValue(PlaceDetailsState.Error("Error getting data"))
+                placeDetailsState.postValue(PlaceDetailsState.Error("Error getting data"))
             }
         }
     }

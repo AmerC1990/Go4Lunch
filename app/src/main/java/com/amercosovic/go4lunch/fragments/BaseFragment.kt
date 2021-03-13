@@ -11,6 +11,7 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.amercosovic.go4lunch.R
+import com.amercosovic.go4lunch.utility.Translate
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
@@ -42,7 +43,12 @@ open class BaseFragment : Fragment() {
             val builder = AlertDialog.Builder(requireContext())
             builder.setMessage(R.string.location_disabled_message.toString())
                 .setCancelable(false)
-                .setPositiveButton("Yes") { dialog, id ->
+                .setPositiveButton(
+                    Translate.translate(
+                        spanish = R.string.Si.toString(),
+                        english = R.string.Yes.toString()
+                    )
+                ) { dialog, id ->
                     startActivityForResult(
                         Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), 11
                     )
